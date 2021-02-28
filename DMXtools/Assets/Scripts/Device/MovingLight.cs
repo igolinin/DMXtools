@@ -12,15 +12,10 @@ namespace IA
         public override int getNumberOfChannels { get { return numberOfChannels; } }
         public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions; } }
 
-        [SerializeField]
-        int universe;
-        [SerializeField]
-        private int dmxAddress;
-
-        [SerializeField]
-        int numberOfChannels;
+       
         [SerializeField]
         Transform panMotor;
+    
         new Light light;
 
         [Header("rotateProps")]
@@ -58,7 +53,7 @@ namespace IA
             
             var dpan = (panTarget - pan);
             var dtilt = (tiltTarget - tilt);
-            Debug.Log("dpan "+dpan+" tilt "+ dtilt);
+            
             if (0 != dpan)
             {
                 //dpan = Mathf.Min(Mathf.Abs(dpan), Time.deltaTime * rotSpeed) * Mathf.Sign(dpan);

@@ -13,9 +13,16 @@ namespace IA
 
         [SerializeField]
         public ArtNetData artNetData;
+        [SerializeField]
+        protected int dmxAddress;
+
+        [SerializeField]
+        protected int numberOfChannels;
+        [SerializeField]
+        protected int universe;
         public bool selected;
         public virtual int getNumberOfChannels { get; }
-         public virtual int getUniverse { get; }
+        public virtual int getUniverse { get; }
         public virtual int getDmxAddress { get; }
         public virtual Dictionary<string, int> getChannelFunctions { get;}
         public virtual void OnEnable()
@@ -43,5 +50,9 @@ namespace IA
         public const string TILT = "Tilt";
         public const string ZOOM = "Zoom";
         public const string STROBE = "Strobe";
+        public const string YELLOW = "Yellow";
+        public const string HARD_SOFT = "Hard / Soft";
+        public const string SILENT_NORMAL_BOOST = "Silent / Normal / Boost";
+        public const string DIMMER = "Dimmer";
     }
 }

@@ -26,7 +26,7 @@ namespace IA
         GroupController groupController;
         private int dmxUniverse = 7;
         
-        bool sendDMX = false;
+        bool sendDMX;
         string remoteIP = "localhost";
 
         private int activeUniverse;
@@ -124,11 +124,11 @@ namespace IA
             GUILayout.BeginArea(header);
             activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 8);
             EditorGUILayout.BeginHorizontal();
-            bool setAsDmx = EditorGUILayout.Toggle("DMX out universe", dmxUniverse == activeUniverse);
-            if (setAsDmx && dMX != null)
+            bool setAsDmx = EditorGUILayout.Toggle("DMX out universe", dmxUniverse == activeUniverse, GUILayout.Width(200));
+            if (setAsDmx)
             {
                 dmxUniverse = activeUniverse;
-                bool sendDMX = EditorGUILayout.Toggle("serial DMX", false);
+                sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
                 if (sendDMX && dMX == null)
                 {
                     dMX = new DMX();
@@ -181,7 +181,7 @@ namespace IA
                             artNetData.dmxDataMap[activeUniverse][channel] = (byte)i;
                             if (sendDMX & activeUniverse == dmxUniverse)
                             {
-                                dMX[channel] = (byte)i;
+                                dMX[channel+1] = (byte)i;
                             }
                             else
                             {
@@ -294,7 +294,7 @@ namespace IA
                     artNetData.dmxDataMap[activeUniverse][f] = (byte)i;
                     if (sendDMX & activeUniverse == dmxUniverse)
                     {
-                        dMX[f] = (byte)i;
+                        dMX[f+1] = (byte)i;
                     }
                     else
                     {
@@ -399,11 +399,11 @@ namespace IA
         {
             DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
             List<DMXFixture> headsOfUniverse = new List<DMXFixture>();
-            for (int i = 0; i < heads.Length; i++)
+            for (int i = 0; i < allHeads.Length; i++)
             {
-                heads[i].FindDataMap();
-                if(heads[i].getUniverse == activeUniverse)
-                    headsOfUniverse.Add(heads[i]);
+                allHeads[i].FindDataMap();
+                if(allHeads[i].getUniverse == activeUniverse)
+                    headsOfUniverse.Add(allHeads[i]);
             }
             return headsOfUniverse;
         }
