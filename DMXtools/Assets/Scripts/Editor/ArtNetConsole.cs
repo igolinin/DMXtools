@@ -25,7 +25,7 @@ namespace IA
         List<DMXFixture> selectedHeadObjects = new List<DMXFixture>();
         GroupController groupController;
         private int dmxUniverse = 7;
-        bool[] selectedHeads = new bool[0];
+        
         bool sendDMX = false;
         string remoteIP = "localhost";
 
@@ -148,20 +148,29 @@ namespace IA
         void DrawSidePanel()
         {
             GUILayout.BeginArea(side);
+            
             if (NumberOfSelected() > 0)
             {
                 if (groupController == null || NumberOfSelected() != selectedHeadObjects.Count)
                 {
                     selectedHeadObjects = new List<DMXFixture>();
-                    selectedHeadObjects = selectedHeads.Select((bool selected, int i) => heads[i]).ToList();
-
+                    foreach(var head in heads)
+                    {
+                        if(head.selected)
+                            selectedHeadObjects.Add(head);
+                    }
+                    //EditorGUILayout.LabelField(""+selectedHeadObjects.Count);
                     groupController = new GroupController(selectedHeadObjects);
                 }
                 EditorGUILayout.BeginVertical();
+                foreach (var head in selectedHeadObjects)
+                {
+                    EditorGUILayout.LabelField(""+head.getDmxAddress);
+                }
                 foreach (KeyValuePair<string, List<int>> channelFunction in groupController.map)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("[" + channelFunction.Key + "] ", GUILayout.Width(100));
+                    EditorGUILayout.LabelField(channelFunction.Key , GUILayout.Width(100));
                     int i = EditorGUILayout.IntSlider(groupController.level[channelFunction.Key], 0, 255, GUILayout.Width(300));
                     groupController.level[channelFunction.Key] = i;
 
@@ -302,14 +311,20 @@ namespace IA
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Find Heads"))
             {
-                heads = FindHeads();
+                heads = FindHeads().ToArray();
                 numberOfHeads = heads.Length;
-                selectedHeads = new bool[numberOfHeads];
+                
+            }
+            if (GUILayout.Button("Connect Heads"))
+            {
+                heads = ConnectHeads();
+                
+                
             }
             if (GUILayout.Button("Reset selection"))
             {
-
-                selectedHeads = new bool[numberOfHeads];
+                ResetSelection();
+               
             }
             EditorGUILayout.EndHorizontal();
 
@@ -323,7 +338,7 @@ namespace IA
             EditorGUILayout.EndHorizontal();
 
 
-            Debug.Log(selectedHeads.Length);
+            
 
 
             scroll = EditorGUILayout.BeginScrollView(scroll);
@@ -342,7 +357,7 @@ namespace IA
                     EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
                     EditorGUILayout.LabelField("Start CH: " + heads[currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(70));
                     EditorGUILayout.LabelField("Channels: " + heads[currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
-                    selectedHeads[currentHead] = EditorGUILayout.Toggle(selectedHeads[currentHead]);
+                    heads[currentHead].selected = EditorGUILayout.Toggle(heads[currentHead].selected);
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
 
@@ -354,11 +369,11 @@ namespace IA
         }
         int NumberOfSelected()
         {
-            if (selectedHeads.Length == 0)
+            if(heads==null)
                 return 0;
             int count = 0;
-            for (int i = 0; i < selectedHeads.Length; i++)
-                if (selectedHeads[i])
+            foreach(var head in heads)
+                if (head.selected)
                     count++;
             return count;
         }
@@ -371,7 +386,7 @@ namespace IA
             }
             return count;
         }
-        private DMXFixture[] FindHeads()
+        private DMXFixture[] ConnectHeads()
         {
             DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
             for (int i = 0; i < heads.Length; i++)
@@ -379,6 +394,28 @@ namespace IA
                 heads[i].FindDataMap();
             }
             return heads;
+        }
+        private List<DMXFixture> FindHeads()
+        {
+            DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
+            List<DMXFixture> headsOfUniverse = new List<DMXFixture>();
+            for (int i = 0; i < heads.Length; i++)
+            {
+                heads[i].FindDataMap();
+                if(heads[i].getUniverse == activeUniverse)
+                    headsOfUniverse.Add(heads[i]);
+            }
+            return headsOfUniverse;
+        }
+        void ResetSelection()
+        {
+            DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
+            for (int i = 0; i < heads.Length; i++)
+            {
+                heads[i].FindDataMap();
+                heads[i].selected = false;
+            }
+            
         }
         void DrawMap()
         {

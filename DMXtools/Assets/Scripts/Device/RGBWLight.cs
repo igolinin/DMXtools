@@ -11,7 +11,7 @@ namespace IA
         public override int getUniverse { get { return universe; } }
         public override int getDmxAddress { get { return dmxAddress; } }
         public override int getNumberOfChannels { get { return numberOfChannels; } }
-        public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions;} }
+        public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions; } }
 
         [SerializeField]
         int universe;
@@ -22,7 +22,7 @@ namespace IA
         int numberOfChannels;
         private Dictionary<string, int> channelFunctions = new Dictionary<string, int> { { ChannelName.RED, 0 }, { ChannelName.GREEN, 1 }, { ChannelName.BLUE, 2 }, { ChannelName.WHITE, 3 } };
         new Light light;
-               void GetWireData()
+        void GetWireData()
         {
             var color = light.color;
 

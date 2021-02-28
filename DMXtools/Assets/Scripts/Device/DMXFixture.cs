@@ -13,6 +13,7 @@ namespace IA
 
         [SerializeField]
         public ArtNetData artNetData;
+        public bool selected;
         public virtual int getNumberOfChannels { get; }
          public virtual int getUniverse { get; }
         public virtual int getDmxAddress { get; }

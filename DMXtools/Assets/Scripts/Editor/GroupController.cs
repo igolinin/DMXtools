@@ -43,7 +43,7 @@ namespace IA
                 }
                 else
                 {
-                    map.Add(channelFunction.Key, new List<int>(device.getDmxAddress + channelFunction.Value));
+                    map.Add(channelFunction.Key, new List<int>(){device.getDmxAddress + channelFunction.Value});
                     level.Add(channelFunction.Key, 0);
                 }
             }
