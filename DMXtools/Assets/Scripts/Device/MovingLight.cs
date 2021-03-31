@@ -19,27 +19,27 @@ namespace IA
         new Light light;
 
         [Header("rotateProps")]
-        public float panMovement = 540f;
-        public float tiltMovement = 270f;
-        public float panTarget;
-        public float tiltTarget;
-        public float minRotSpeed = 1f;
-        public float maxRotSpeed = 100f;
+        public float panMovement = 360f;
+        public float tiltMovement = 180f;
+        float panTarget;
+        float tiltTarget;
+        float minRotSpeed = 1f;
+        float maxRotSpeed = 100f;
         private Dictionary<string, int> channelFunctions = new Dictionary<string, int> { { ChannelName.RED, 0 }, { ChannelName.GREEN, 1 }, { ChannelName.BLUE, 2 }, { ChannelName.WHITE, 3 },{ ChannelName.TILT, 4 }, { ChannelName.PAN, 5 }  };
 
-        public float pan;
-        public float tilt;
-        public float rotSpeed;
+        float pan;
+        float tilt;
+        float rotSpeed;
 
         
         void SetPan()
         {
-            pan = panMotor.localEulerAngles.z;
-            panTarget = (artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.PAN]] ) * panMovement / 256f;
+            pan = panMotor.localEulerAngles.y;
+            panTarget = (artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.PAN]] ) * panMovement / 256f;
         }
         void SetTilt()
         {
-            tiltTarget = (artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.TILT]]  ) * tiltMovement / 256f;
+            tiltTarget = (artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.TILT]]  ) * tiltMovement / 256f;
             tilt = light.transform.localEulerAngles.x;
         }
 
@@ -56,15 +56,11 @@ namespace IA
             
             if (0 != dpan)
             {
-                //dpan = Mathf.Min(Mathf.Abs(dpan), Time.deltaTime * rotSpeed) * Mathf.Sign(dpan);
-                //pan += dpan;
-                panMotor.Rotate(Vector3.down, dpan, Space.Self);
+                panMotor.transform.localEulerAngles = new Vector3(0,panTarget,0) ;
             }
             if (0 != dtilt)
             {
-                //dtilt = Mathf.Min(Mathf.Abs(dtilt), Time.deltaTime * rotSpeed) * Mathf.Sign(dtilt);
-                //tilt += dtilt;
-                light.transform.Rotate(Vector3.right, dtilt, Space.Self);
+                light.transform.localEulerAngles = new Vector3(tiltTarget,0,0) ;
             }
         }
         void UpdateStrobo()
@@ -75,10 +71,10 @@ namespace IA
         {
             var color = light.color;
 
-            color.r = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.RED]] / 256f;
-            color.g = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.GREEN]] / 256f;
-            color.b = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.BLUE]] / 256f;
-            color += Color.white * 0.5f * artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.WHITE]] / 256f;
+            color.r = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.RED]] / 256f;
+            color.g = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.GREEN]] / 256f;
+            color.b = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.BLUE]] / 256f;
+            color += Color.white * 0.5f * artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.WHITE]] / 256f;
 
             light.color = color;
         }

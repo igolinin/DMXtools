@@ -9,7 +9,7 @@ namespace IA
     [ExecuteAlways]
     public class MixPanel60v1 : DMXFixture
     {
-        public override int getUniverse { get { return universe = 7; } }
+        public override int getUniverse { get { return universe = 8; } }
         public override int getDmxAddress { get { return dmxAddress; } }
         public override int getNumberOfChannels { get { return numberOfChannels; } }
         public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions; } }

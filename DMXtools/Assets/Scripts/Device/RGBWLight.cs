@@ -20,10 +20,10 @@ namespace IA
         {
             var color = light.color;
 
-            color.r = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.RED]] / 256f;
-            color.g = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.GREEN]] / 256f;
-            color.b = artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.BLUE]] / 256f;
-            color += Color.white * 0.5f * artNetData.dmxDataMap[universe][dmxAddress + (int)channelFunctions[ChannelName.WHITE]] / 256f;
+            color.r = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.RED]] / 256f;
+            color.g = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.GREEN]] / 256f;
+            color.b = artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.BLUE]] / 256f;
+            color += Color.white * 0.5f * artNetData.dmxDataMap[universe-1][dmxAddress + (int)channelFunctions[ChannelName.WHITE]] / 256f;
 
             light.color = color;
         }

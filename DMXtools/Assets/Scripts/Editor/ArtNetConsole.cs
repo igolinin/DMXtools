@@ -21,11 +21,13 @@ namespace IA
         DMX dMX;
         ArtNetSocket artnet;
         IPEndPoint remote;
-        DMXFixture[] heads;
+        Dictionary<int, DMXFixture[]> heads;
         List<DMXFixture> selectedHeadObjects = new List<DMXFixture>();
         GroupController groupController;
-        private int dmxUniverse = 7;
-        
+        const int numberOfUniverses = 8;
+        private int dmxUniverse = numberOfUniverses + 1;
+        int[] patchSize = new int[numberOfUniverses + 1];
+
         bool sendDMX;
         string remoteIP = "localhost";
 
@@ -33,8 +35,8 @@ namespace IA
         int activeView;
         int numberOfColumns = 3;
         int numberOfHeads;
-        bool[] receiveArtNet = new bool[8];
-        string[] universes = { "Universe 1", "Universe 2", "Universe 3", "Universe 4", "Universe 5", "Universe 6", "Universe 7", "Universe 8" };
+        bool[] receiveArtNet = new bool[numberOfUniverses + 1];
+        string[] universes = { "All", "Universe 1", "Universe 2", "Universe 3", "Universe 4", "Universe 5", "Universe 6", "Universe 7", "Universe 8" };
 
 
 
@@ -93,7 +95,7 @@ namespace IA
         }
         void CallUpdate()
         {
-            Debug.Log("update is called");
+            //Debug.Log("update is called");
             artNetData.dmxUpdate.Invoke();
         }
         void DrawLayouts()
@@ -122,66 +124,90 @@ namespace IA
         void DrawHeader()
         {
             GUILayout.BeginArea(header);
-            activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 8);
+            activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 9);
             EditorGUILayout.BeginHorizontal();
-            bool setAsDmx = EditorGUILayout.Toggle("DMX out universe", dmxUniverse == activeUniverse, GUILayout.Width(200));
-            if (setAsDmx)
+            if (activeUniverse != 0)
             {
-                dmxUniverse = activeUniverse;
-                sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
-                if (sendDMX && dMX == null)
+                bool setAsDmx = EditorGUILayout.Toggle("DMX out universe", dmxUniverse == activeUniverse, GUILayout.Width(200));
+                if (setAsDmx)
                 {
-                    dMX = new DMX();
+                    dmxUniverse = activeUniverse;
+                    sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
+                    if (sendDMX && dMX == null)
+                    {
+                        dMX = new DMX();
+                    }
+                }
+                else
+                {
+                    receiveArtNet[activeUniverse] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse]);
+                    if (GUILayout.Button("Update art-net data"))
+                    {
+                        CallUpdate();
+                    }
                 }
             }
-            else
-            {
-                receiveArtNet[activeUniverse] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse]);
-                if (GUILayout.Button("Update"))
-                {
-                    CallUpdate();
-                }
-            }
+
             EditorGUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
         void DrawSidePanel()
         {
             GUILayout.BeginArea(side);
-            
-            if (NumberOfSelected() > 0)
+
+            if (NumberOfSelected() > 0 && heads != null)
             {
-                if (groupController == null || NumberOfSelected() != selectedHeadObjects.Count)
+                if (groupController == null)
                 {
                     selectedHeadObjects = new List<DMXFixture>();
-                    foreach(var head in heads)
+                    foreach (var head in heads[activeUniverse])
                     {
-                        if(head.selected)
+                        if (head.selected)
                             selectedHeadObjects.Add(head);
                     }
                     //EditorGUILayout.LabelField(""+selectedHeadObjects.Count);
                     groupController = new GroupController(selectedHeadObjects);
                 }
+                else if (NumberOfSelected() != selectedHeadObjects.Count)
+                {
+                    foreach (var head in heads[activeUniverse])
+                    {
+                        if (head.selected && !head.added)
+                        {
+                            groupController.AddSelected(head);
+                            selectedHeadObjects.Add(head);
+                        }
+                        if (!head.selected && head.added)
+                        {
+                            groupController.RemoveDeselected(head);
+                            selectedHeadObjects.Remove(head);
+                        }
+
+                    }
+                }
                 EditorGUILayout.BeginVertical();
+                EditorGUILayout.BeginHorizontal();
+                //EditorGUILayout.LabelField("Selected:");
                 foreach (var head in selectedHeadObjects)
                 {
-                    EditorGUILayout.LabelField(""+head.getDmxAddress);
+                    EditorGUILayout.LabelField("" + head.getDmxAddress, GUILayout.Width(20));
                 }
-                foreach (KeyValuePair<string, List<int>> channelFunction in groupController.map)
+                EditorGUILayout.EndHorizontal();
+                foreach (KeyValuePair<string, List<int[]>> channelFunction in groupController.map)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(channelFunction.Key , GUILayout.Width(100));
+                    EditorGUILayout.LabelField(channelFunction.Key, GUILayout.Width(100));
                     int i = EditorGUILayout.IntSlider(groupController.level[channelFunction.Key], 0, 255, GUILayout.Width(300));
                     groupController.level[channelFunction.Key] = i;
 
-                    foreach (int channel in channelFunction.Value)
+                    foreach (int[] channel in channelFunction.Value)
                     {
-                        if (i != artNetData.dmxDataMap[activeUniverse][channel])
+                        if (i != artNetData.dmxDataMap[channel[0] - 1][channel[1]])
                         {
-                            artNetData.dmxDataMap[activeUniverse][channel] = (byte)i;
+                            artNetData.dmxDataMap[channel[0] - 1][channel[1]] = (byte)i;
                             if (sendDMX & activeUniverse == dmxUniverse)
                             {
-                                dMX[channel+1] = (byte)i;
+                                dMX[channel[1] + 1] = (byte)i;
                             }
                             else
                             {
@@ -207,6 +233,8 @@ namespace IA
             EditorGUILayout.EndHorizontal();
             if (activeView == 1)
             {
+                if (heads == null)
+                    FindAllHeads();
                 DrawHeads();
             }
             else
@@ -226,17 +254,13 @@ namespace IA
                 if (e.Packet.OpCode == ArtNet.Enums.ArtNetOpCodes.Dmx)
                 {
                     var packet = e.Packet as ArtNetDmxPacket;
-
-
-                //Debug.Log("new packet");
-
-                var universe = packet.Universe;
-                //Debug.Log("universe: " + receiveArtNet[universe]);
-                if (receiveArtNet[universe])
+                    var universe = packet.Universe;
+                    //Debug.Log("universe: " + receiveArtNet[universe]);
+                    if (receiveArtNet[universe])
                     {
                         artNetData.SetData(universe, packet.DmxData);
-                    //CallUpdate();
-                }
+                        //CallUpdate();
+                    }
 
 
 
@@ -277,102 +301,104 @@ namespace IA
         }
         void DrawSliders()
         {
-            int numberOfChannels = 512;
-
-            //Levels
-            //DrawDropdown(new Rect(20,20,30,20), new GUIContent("test"));
-            scroll = EditorGUILayout.BeginScrollView(scroll);
-            GUIStyle labelWidth = new GUIStyle();
-            labelWidth.fixedWidth = 300;
-            for (int f = 0; f < numberOfChannels; f++)
+            if (activeUniverse != 0)
             {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("[Channel " + (f + 1) + "] ", GUILayout.Width(100));
-                int i = EditorGUILayout.IntSlider((int)artNetData.dmxDataMap[activeUniverse][f], 0, 255, GUILayout.Width(300));
-                if (i != artNetData.dmxDataMap[activeUniverse][f])
+                int numberOfChannels = 512;
+                scroll = EditorGUILayout.BeginScrollView(scroll);
+                GUIStyle labelWidth = new GUIStyle();
+                labelWidth.fixedWidth = 300;
+                for (int f = 0; f < numberOfChannels; f++)
                 {
-                    artNetData.dmxDataMap[activeUniverse][f] = (byte)i;
-                    if (sendDMX & activeUniverse == dmxUniverse)
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("[Channel " + (f + 1) + "] ", GUILayout.Width(100));
+                    int i = EditorGUILayout.IntSlider((int)artNetData.dmxDataMap[activeUniverse - 1][f], 0, 255, GUILayout.Width(300));
+                    if (i != artNetData.dmxDataMap[activeUniverse - 1][f])
                     {
-                        dMX[f+1] = (byte)i;
-                    }
-                    else
-                    {
-                        artNetData.dmxUpdate.Invoke();
-                    }
+                        artNetData.dmxDataMap[activeUniverse - 1][f] = (byte)i;
+                        if (sendDMX & activeUniverse == dmxUniverse)
+                        {
+                            dMX[f + 1] = (byte)i;
+                        }
+                        else
+                        {
+                            artNetData.dmxUpdate.Invoke();
+                        }
 
+                    }
+                    EditorGUILayout.EndHorizontal();
                 }
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndScrollView();
             }
-            EditorGUILayout.EndScrollView();
+
         }
         void DrawHeads()
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Find Heads"))
             {
-                heads = FindHeads().ToArray();
-                numberOfHeads = heads.Length;
-                
+                heads = FindAllHeads();
+                //numberOfHeads = heads[activeUniverse].Length;
+
             }
             if (GUILayout.Button("Connect Heads"))
             {
-                heads = ConnectHeads();
-                
-                
+                ConnectHeads();
+
+
             }
             if (GUILayout.Button("Reset selection"))
             {
                 ResetSelection();
-               
+
             }
             EditorGUILayout.EndHorizontal();
 
 
-            //Debug.Log(numberOfHeads);
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("number of patched heads :" + numberOfHeads, GUILayout.MaxWidth(200));
-            EditorGUILayout.LabelField("Number of Columns", GUILayout.MaxWidth(120));
-            numberOfColumns = EditorGUILayout.IntSlider(numberOfColumns, 1, 10, GUILayout.Width(150));
-
-            EditorGUILayout.EndHorizontal();
-
-
-            
-
-
-            scroll = EditorGUILayout.BeginScrollView(scroll);
-
-            for (int f = 0; f < numberOfHeads / numberOfColumns + 1; f++)
+            if (heads != null)
             {
                 EditorGUILayout.BeginHorizontal();
-                for (int j = 0; j < numberOfColumns; j++)
-                {
-                    //Debug.Log("j"+j);
-                    int currentHead = f * numberOfColumns + j;
-                    if (currentHead >= numberOfHeads)
-                        continue;
-                    EditorGUILayout.BeginVertical("box");
-                    EditorGUILayout.LabelField(heads[currentHead].name, GUILayout.MaxWidth(100));
-                    EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
-                    EditorGUILayout.LabelField("Start CH: " + heads[currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(70));
-                    EditorGUILayout.LabelField("Channels: " + heads[currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
-                    heads[currentHead].selected = EditorGUILayout.Toggle(heads[currentHead].selected);
-                    EditorGUILayout.EndHorizontal();
-                    EditorGUILayout.EndVertical();
-
-                }
+                EditorGUILayout.LabelField("number of patched heads :" + patchSize[activeUniverse], GUILayout.MaxWidth(200));
+                EditorGUILayout.LabelField("Number of Columns", GUILayout.MaxWidth(120));
+                numberOfColumns = EditorGUILayout.IntSlider(numberOfColumns, 1, 10, GUILayout.Width(150));
 
                 EditorGUILayout.EndHorizontal();
+
+                scroll = EditorGUILayout.BeginScrollView(scroll);
+
+                for (int f = 0; f < patchSize[activeUniverse] / numberOfColumns + 1; f++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    for (int j = 0; j < numberOfColumns; j++)
+                    {
+                        //
+                        int currentHead = f * numberOfColumns + j;
+                        if (currentHead >= patchSize[activeUniverse])
+                            continue;
+                        EditorGUILayout.BeginVertical("box");
+                        EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(100));
+                        EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
+                        EditorGUILayout.LabelField("Start CH: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(70));
+                        EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
+                        heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndVertical();
+
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView();
             }
-            EditorGUILayout.EndScrollView();
+
+
         }
         int NumberOfSelected()
         {
-            if(heads==null)
+            DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
+            if (allHeads == null)
                 return 0;
             int count = 0;
-            foreach(var head in heads)
+            foreach (var head in allHeads)
                 if (head.selected)
                     count++;
             return count;
@@ -386,26 +412,49 @@ namespace IA
             }
             return count;
         }
-        private DMXFixture[] ConnectHeads()
+        private void ConnectHeads()
         {
             DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
             for (int i = 0; i < heads.Length; i++)
             {
                 heads[i].FindDataMap();
             }
-            return heads;
+
         }
-        private List<DMXFixture> FindHeads()
+        private List<DMXFixture> FindHeadsOfUniverse()
         {
             DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
             List<DMXFixture> headsOfUniverse = new List<DMXFixture>();
             for (int i = 0; i < allHeads.Length; i++)
             {
                 allHeads[i].FindDataMap();
-                if(allHeads[i].getUniverse == activeUniverse)
+                if (allHeads[i].getUniverse == activeUniverse)
                     headsOfUniverse.Add(allHeads[i]);
             }
             return headsOfUniverse;
+        }
+        private Dictionary<int, DMXFixture[]> FindAllHeads()
+        {
+            DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
+            for (int i = 0; i < heads.Length; i++)
+            {
+                heads[i].FindDataMap();
+            }
+            Dictionary<int, DMXFixture[]> sortedHeads = new Dictionary<int, DMXFixture[]>();
+            patchSize = new int[numberOfUniverses + 1];
+            for (int i = 0; i < heads.Length; i++)
+            {
+                patchSize[heads[i].getUniverse]++;
+                patchSize[0]++;
+            }
+            sortedHeads[0] = heads;
+            for (int i = 1; i <= numberOfUniverses; i++)
+            {
+                var tempHeads = heads.Where(h => h.getUniverse == i).ToList();
+                var ordered = tempHeads.OrderBy(x => x.getDmxAddress);
+                sortedHeads[i] = ordered.ToArray();
+            }
+            return sortedHeads;
         }
         void ResetSelection()
         {
@@ -415,7 +464,7 @@ namespace IA
                 heads[i].FindDataMap();
                 heads[i].selected = false;
             }
-            
+
         }
         void DrawMap()
         {
@@ -431,7 +480,7 @@ namespace IA
             {
                 EditorGUILayout.BeginHorizontal();
                 for (int j = 0; j < 8; j++)
-                    EditorGUILayout.LabelField("Ch" + (f * 8 + j + 1) + "@" + artNetData.dmxDataMap[activeUniverse][f * 8 + j], GUILayout.Width(100));
+                    EditorGUILayout.LabelField("Ch" + (f * 8 + j + 1) + "@" + artNetData.dmxDataMap[activeUniverse - 1][f * 8 + j], GUILayout.Width(100));
 
                 EditorGUILayout.EndHorizontal();
             }

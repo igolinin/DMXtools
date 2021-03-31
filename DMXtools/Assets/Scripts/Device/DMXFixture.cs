@@ -21,6 +21,7 @@ namespace IA
         [SerializeField]
         protected int universe;
         public bool selected;
+        public bool added;
         public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
         public virtual int getDmxAddress { get; }
