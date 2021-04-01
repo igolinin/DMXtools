@@ -36,6 +36,7 @@ namespace IA
         int numberOfColumns = 3;
         int numberOfHeads;
         bool[] receiveArtNet = new bool[numberOfUniverses + 1];
+        string[] views = { "channels", "heads" };
         string[] universes = { "All", "Universe 1", "Universe 2", "Universe 3", "Universe 4", "Universe 5", "Universe 6", "Universe 7", "Universe 8" };
 
 
@@ -155,7 +156,7 @@ namespace IA
         {
             GUILayout.BeginArea(side);
 
-            if (NumberOfSelected() > 0 && heads != null)
+            if (NumberOfSelected() > 0 && heads != null && activeView == 1)
             {
                 if (groupController == null)
                 {
@@ -225,7 +226,7 @@ namespace IA
         }
         void DrawBody()
         {
-            string[] views = { "channels", "heads" };
+            
             GUILayout.BeginArea(body);
             EditorGUILayout.BeginHorizontal();
 
