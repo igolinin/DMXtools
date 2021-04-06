@@ -136,7 +136,11 @@ namespace IA
                     sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
                     if (sendDMX && dMX == null)
                     {
-                        dMX = new DMX();
+                        dMX = new DMX(dmxUniverse-1);
+                    }
+                    if(!sendDMX && dMX != null)
+                    {
+                        dMX.Quit();
                     }
                 }
                 else
@@ -155,6 +159,11 @@ namespace IA
         void DrawSidePanel()
         {
             GUILayout.BeginArea(side);
+            if (NumberOfSelected() == 0){
+                groupController = null;
+                selectedHeadObjects = new List<DMXFixture>();
+                ResetSelection();
+            }
 
             if (NumberOfSelected() > 0 && heads != null && activeView == 1)
             {
@@ -169,16 +178,17 @@ namespace IA
                     //EditorGUILayout.LabelField(""+selectedHeadObjects.Count);
                     groupController = new GroupController(selectedHeadObjects);
                 }
-                else if (NumberOfSelected() != selectedHeadObjects.Count)
+                else if (/* NumberOfSelected() != selectedHeadObjects.Count */true)
                 {
+                    
                     foreach (var head in heads[activeUniverse])
                     {
                         if (head.selected && !head.added)
                         {
                             groupController.AddSelected(head);
                             selectedHeadObjects.Add(head);
-                        }
-                        if (!head.selected && head.added)
+                        }else
+                        if (head.selected == false && head.added == true)
                         {
                             groupController.RemoveDeselected(head);
                             selectedHeadObjects.Remove(head);
@@ -194,21 +204,21 @@ namespace IA
                     EditorGUILayout.LabelField("" + head.getDmxAddress, GUILayout.Width(20));
                 }
                 EditorGUILayout.EndHorizontal();
-                foreach (KeyValuePair<string, List<int[]>> channelFunction in groupController.map)
+                foreach (KeyValuePair<string, DeviceGroup> channelFunction in groupController.map)
                 {
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(channelFunction.Key, GUILayout.Width(100));
-                    int i = EditorGUILayout.IntSlider(groupController.level[channelFunction.Key], 0, 255, GUILayout.Width(300));
-                    groupController.level[channelFunction.Key] = i;
+                    int i = EditorGUILayout.IntSlider(groupController.map[channelFunction.Key].level, 0, 255, GUILayout.Width(300));
+                    groupController.map[channelFunction.Key].level = i;
 
-                    foreach (int[] channel in channelFunction.Value)
+                    foreach (DMXFixture device in channelFunction.Value.devices)
                     {
-                        if (i != artNetData.dmxDataMap[channel[0] - 1][channel[1]])
+                        if (i != artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress+device.getChannelFunctions[channelFunction.Key]])
                         {
-                            artNetData.dmxDataMap[channel[0] - 1][channel[1]] = (byte)i;
+                            artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress+device.getChannelFunctions[channelFunction.Key]] = (byte)i;
                             if (sendDMX & activeUniverse == dmxUniverse)
                             {
-                                dMX[channel[1] + 1] = (byte)i;
+                                dMX[device.getDmxAddress+device.getChannelFunctions[channelFunction.Key] + 1] = (byte)i;
                             }
                             else
                             {
@@ -344,13 +354,15 @@ namespace IA
             if (GUILayout.Button("Connect Heads"))
             {
                 ConnectHeads();
-
-
             }
             if (GUILayout.Button("Reset selection"))
             {
                 ResetSelection();
-
+                ResetGroupController();
+            }
+            if (GUILayout.Button("Black Out"))
+            {
+                ClearOutput();
             }
             EditorGUILayout.EndHorizontal();
 
@@ -464,8 +476,13 @@ namespace IA
             {
                 heads[i].FindDataMap();
                 heads[i].selected = false;
+                heads[i].added = false;
             }
 
+        }
+        void ResetGroupController()
+        {
+            groupController = null;
         }
         void DrawMap()
         {
@@ -486,6 +503,10 @@ namespace IA
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
+        }
+        void ClearOutput()
+        {
+            artNetData.ResetData();
         }
         static IPAddress FindFromHostName(string hostname)
         {
@@ -513,6 +534,7 @@ namespace IA
             }
             return address;
         }
+        
 
     }
 }

@@ -20,8 +20,8 @@ namespace IA
         protected int numberOfChannels;
         [SerializeField]
         protected int universe;
-        public bool selected;
-        public bool added;
+        public bool selected=false;
+        public bool added = false;
         public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
         public virtual int getDmxAddress { get; }

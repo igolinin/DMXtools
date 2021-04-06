@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace IA
 {
     public class GroupController
     {
 
-        public Dictionary<string, List<int[]>> map;
-        public Dictionary<string, int> level;
-
+        public Dictionary<string, DeviceGroup> map;
+        
         public GroupController(List<DMXFixture> devices)
         {
-            map = new Dictionary<string, List<int[]>>();
-            level = new Dictionary<string, int>();
+            map = new Dictionary<string, DeviceGroup>();
+            
             foreach(DMXFixture device in devices)
             {
                 AddSelected(device);
@@ -21,17 +21,8 @@ namespace IA
         }
         public GroupController(DMXFixture device)
         {
-            map = new Dictionary<string, List<int[]>>();
-            level = new Dictionary<string, int>();
-            foreach (KeyValuePair<string, int> channelFunction in device.getChannelFunctions)
-            {
-                int[] newDevice = new int[2]{device.getUniverse, device.getDmxAddress + channelFunction.Value};
-                var newList = new List<int[]>();
-                newList.Add(newDevice);
-                map.Add(channelFunction.Key, newList);
-                level.Add(channelFunction.Key, 0);
-            }
-            device.added = true;
+            map = new Dictionary<string, DeviceGroup>();
+            AddSelected(device);
         }
         public int getSize()
         {
@@ -41,27 +32,55 @@ namespace IA
         {
             foreach (KeyValuePair<string, int> channelFunction in device.getChannelFunctions)
             {
+                    
                 if (map.ContainsKey(channelFunction.Key))
                 {
-                    map[channelFunction.Key].Add(new int[]{device.getUniverse, device.getDmxAddress + channelFunction.Value});
+                    map[channelFunction.Key].devices.Add(device);
                 }
                 else
                 {
-                    map.Add(channelFunction.Key, new List<int[]>{new int[]{device.getUniverse, device.getDmxAddress + channelFunction.Value}});
-                    level.Add(channelFunction.Key, 0);
+                    //map.Add(channelFunction.Key, new List<int[]>{new int[]{device.getUniverse, device.getDmxAddress + channelFunction.Value}});
+                    var newDeviceGroup = new DeviceGroup(device);
+                    map.Add(channelFunction.Key, newDeviceGroup);
                 }
             }
+            
             device.added = true;
         }
         public void RemoveDeselected(DMXFixture device)
         {
+            List<string> keysToRemove = new List<string>();
+            device.added = false;
             foreach (KeyValuePair<string, int> channelFunction in device.getChannelFunctions)
             {
-                
-                    map[channelFunction.Key].RemoveAll(x => x[0] == device.getUniverse && x[1] == device.getDmxAddress + channelFunction.Value);
-               
+                if (map.ContainsKey(channelFunction.Key))
+                {
+                    map[channelFunction.Key].devices.RemoveAll(x => x == device);
+                    if(map[channelFunction.Key].devices.Count == 0)
+                        keysToRemove.Add(channelFunction.Key);
+                }
             }
-                device.added = false;
+            foreach(string key in keysToRemove)
+            {
+                map.Remove(key);
+            }
+        }
+    }
+    public class DeviceGroup
+    {
+        public int level;
+        public List<DMXFixture> devices;
+        public DeviceGroup(DMXFixture newDevice)
+        {
+            devices = new List<DMXFixture>();
+            devices.Add(newDevice);
+            level = 0;
+        }
+        public DeviceGroup(DMXFixture newDevice, int newLevel)
+        {
+            devices = new List<DMXFixture>();
+            devices.Add(newDevice);
+            level = newLevel;
         }
     }
 }

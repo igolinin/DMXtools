@@ -29,7 +29,6 @@ namespace IA
         }
         public void ResetData()
         {
-            Debug.Log("reset");
             dmxDataMap = new byte[8][];
             for (int i = 0; i < 8; i++)
                 dmxDataMap[i] = new byte[512];

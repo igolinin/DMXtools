@@ -2,11 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
-using ArtNet.Sockets;
-using ArtNet.Packets;
+using Newtonsoft.Json;
 
 namespace IA
 {
@@ -33,6 +29,11 @@ namespace IA
         void OnEnable()
         {
             FindDataMap();
+            ReadData();
+        }
+        void OnDisable()
+        {
+            SaveData();
         }
         void OnGUI()
         {
@@ -69,9 +70,10 @@ namespace IA
         {
             GUILayout.BeginArea(header);
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Black Out"))
+            if (GUILayout.Button("Save stack"))
             {
-                ClearOutput();
+                //ClearOutput();
+                SaveData();
             }
             if (GUILayout.Button("Clear Stack"))
             {
@@ -83,6 +85,10 @@ namespace IA
 
             EditorGUILayout.EndHorizontal();
             GUILayout.EndArea();
+        }
+        void Start()
+        {
+            FindDataMap();
         }
         void DrawSidePanel()
         {
@@ -157,6 +163,20 @@ namespace IA
                 var cue = new Cue(dmxDataMap, name);
                 cueStack = new CueStack(cue);
             }
+        }
+        private void SaveData()
+        {
+            //var data = JsonUtility.ToJson(cueStack);
+            string json = JsonConvert.SerializeObject(cueStack, Formatting.Indented);
+            System.IO.File.WriteAllText("Assets/Scripts/ScriptableObjects/" + "/presets.json", json);
+            Debug.Log("STACK IS SAVED");
+        }
+        void ReadData()
+        {
+            string json = System.IO.File.ReadAllText("Assets/Scripts/ScriptableObjects/" + "/presets.json");
+            var stack = JsonConvert.DeserializeObject<CueStack>(json);
+            cueStack = new CueStack();
+            cueStack = stack;
         }
     }
 }

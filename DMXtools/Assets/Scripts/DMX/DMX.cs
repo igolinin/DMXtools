@@ -5,13 +5,15 @@ using System.IO.Ports;
 using System.Threading;
 using System.Collections.Generic;
 using System;
+using UnityEditor;
 
 namespace IA
 {
     [ExecuteAlways]
     public class DMX
     {
-
+        ArtNetData artNetData;
+        int universe;
         private const int DMX_INDEX_OFFSET = 5;
         private const int DMX_MESSAGE_OVERHEAD = 6;
 
@@ -42,14 +44,15 @@ namespace IA
         private byte[] DMXLevels = new byte[N_DMX_CHANNELS];
         private byte[] TxBuffer = new byte[DMX_MESSAGE_OVERHEAD + N_DMX_CHANNELS];
 
-        public DMX()
+        public DMX(int universe)
         {
             Debug.Log("System started");
             serialPorts = GetPortNames();
             //if (serialPortIdx > 0) 
             Debug.Log("System started");
+            this.universe = universe;
             OpenSerialPort();
-
+            FindDataMap();
             initTXBuffer();
 
             dmxThread = new Thread(ThreadedIO);
@@ -98,13 +101,13 @@ namespace IA
             {
                 if (updateDMX)
                 {
-                    updateDMX = false;
-                    Buffer.BlockCopy(DMXLevels, 0, TxBuffer, DMX_INDEX_OFFSET, N_DMX_CHANNELS);
+                    //updateDMX = false;
+                    Buffer.BlockCopy(artNetData.dmxDataMap[universe], 0, TxBuffer, DMX_INDEX_OFFSET, N_DMX_CHANNELS);
                     if (serialPort != null && serialPort.IsOpen)
                     {
-                        Debug.Log(TxBuffer);
                         serialPort.Write(TxBuffer, 0, TX_BUFFER_LENGTH);
                     };
+                    Thread.Sleep(200);
                 }
 
                 //if (serialPort.BytesToRead > 0)
@@ -116,6 +119,15 @@ namespace IA
 
             return SerialPort.GetPortNames();
 
+        }
+        private void FindDataMap()
+        {
+            var path = "Assets/Scripts/ScriptableObjects/";
+            var objectName = "DataMap.asset";
+
+            artNetData = AssetDatabase.LoadAssetAtPath<ArtNetData>(path + objectName);
+
+            
         }
 
         public void OpenSerialPort()
