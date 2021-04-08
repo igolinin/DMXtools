@@ -38,17 +38,18 @@ namespace IA
         void SetPan()
         {
             pan = panMotor.localEulerAngles.y;
-            panTarget = (artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.PAN]]) * panMovement / 256f;
+            panTarget = (artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.PAN]]) * panMovement / 256f;
         }
         void SetTilt()
         {
-            tiltTarget = (artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.TILT]]) * tiltMovement / 256f;
+            tiltTarget = (artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.TILT]]) * tiltMovement / 256f;
             tilt = light.transform.localEulerAngles.x;
         }
 
         void Update()
         {
-            
+            GetWireData();
+            UpdateRotation();
         }
         void UpdateRotation()
         {
@@ -67,36 +68,36 @@ namespace IA
         }
         IEnumerator UpdateThread()
         {
-            while(update)
+            while (update)
             {
                 GetWireData();
                 UpdateRotation();
-                yield return new WaitForSeconds(1/refreshRate);
+                yield return new WaitForSeconds(1 / refreshRate);
             }
         }
         void Flash()
         {
-            
-            if(artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.STROBE]]>0)
+
+            if (artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.STROBE]] > 0)
             {
                 strobeTimer -= Time.deltaTime;
-                if(strobeTimer < Time.deltaTime)
+                if (strobeTimer < Time.deltaTime)
                 {
-                    strobeTimer = 1/artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.STROBE]];
+                    strobeTimer = 1 / artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.STROBE]];
                     Toggle();
                 }
             }
 
-            
+
         }
         void SetColor()
         {
             var color = light.color;
 
-            color.r = artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.RED]] / 256f;
-            color.g = artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.GREEN]] / 256f;
-            color.b = artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.BLUE]] / 256f;
-            color += Color.white * artNetData.dmxDataMap[universe - 1][dmxAddress + (int)channelFunctions[ChannelName.WHITE]] / 256f;
+            color.r = artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.RED]] / 256f;
+            color.g = artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.GREEN]] / 256f;
+            color.b = artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.BLUE]] / 256f;
+            color += Color.white * artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.WHITE]] / 256f;
 
             light.color = color;
         }

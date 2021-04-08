@@ -112,6 +112,10 @@ namespace IA
                 RecordOutput(artNetData.dmxDataMap, cueName);
                 cueName = "";
             }
+            if (GUILayout.Button("Remove Selected"))
+            {
+                RemoveCue();
+            }
             EditorGUILayout.EndHorizontal();
             if (cueStack != null)
             {
@@ -145,6 +149,12 @@ namespace IA
         private void ClearOutput()
         {
             artNetData.ResetData();
+        }
+        void RemoveCue()
+        {
+            cueStack.RemoveCue(currentCue);
+            if(currentCue > 0)
+                currentCue--;
         }
         void CallUpdate()
         {

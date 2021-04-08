@@ -87,7 +87,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8360603001673112045}
-  m_LocalRotation: {x: 0.036807228, y: 0, z: 0, w: 0.9993224}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -171,8 +171,8 @@ MonoBehaviour:
   dmxAddress: 35
   numberOfChannels: 6
   universe: 1
-  selected: 1
-  added: 1
+  selected: 0
+  added: 0
   panMotor: {fileID: 2965516605380151078}
   panMovement: 360
   tiltMovement: 360

@@ -29,6 +29,10 @@ namespace IA
             
             return stack[number];
         }
+        public void RemoveCue(int number)
+        {
+            stack.RemoveAt(number);
+        }
         public void ClearStack()
         {
             stack = new List<Cue>();

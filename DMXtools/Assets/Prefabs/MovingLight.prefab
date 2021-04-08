@@ -54,7 +54,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1998126855017302767}
-  m_LocalRotation: {x: 0, y: 0.77301043, z: 0, w: 0.6343933}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -87,7 +87,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5087854027472311333}
-  m_LocalRotation: {x: 0.9783174, y: 0, z: 0, w: 0.20711133}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -105,8 +105,8 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 0.66796875, g: 0, b: 0.7421875, a: 7926.51}
-  m_Intensity: 6.03
+  m_Color: {r: 0, g: 0, b: 0, a: 18160.15}
+  m_Intensity: 6
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -168,11 +168,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
-  dmxAddress: 28
-  numberOfChannels: 6
-  universe: 1
-  selected: 1
-  added: 1
+  dmxAddress: 0
+  numberOfChannels: 7
+  universe: 2
+  selected: 0
+  added: 0
   panMotor: {fileID: 1998126855017302766}
   panMovement: 360
   tiltMovement: 180
+  refreshRate: 5

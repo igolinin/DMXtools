@@ -43,7 +43,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.45703125, g: 0.49609375, b: 0.25, a: 357.0293}
+  m_Color: {r: 0, g: 0, b: 0, a: 4393.795}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -106,6 +106,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
-  universe: 0
-  dmxAddress: 0
+  dmxAddress: 4
   numberOfChannels: 4
+  universe: 1
+  selected: 0
+  added: 0

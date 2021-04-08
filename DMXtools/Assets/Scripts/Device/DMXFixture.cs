@@ -12,9 +12,9 @@ namespace IA
 
 
         [SerializeField]
-        public ArtNetData artNetData;
+        protected ArtNetData artNetData;
         [SerializeField]
-        protected int dmxAddress;
+        public int dmxAddress;
 
         [SerializeField]
         protected int numberOfChannels;
@@ -24,13 +24,16 @@ namespace IA
         public bool added = false;
         public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
-        public virtual int getDmxAddress { get; }
+        public virtual int getDmxAddress { get{return dmxAddress;} set{SetAddress(value);}}
         public virtual Dictionary<string, int> getChannelFunctions { get;}
         public virtual void OnEnable()
         {
             FindDataMap();
         }
-        
+        public void SetAddress(int value)
+        {
+            getDmxAddress = value;
+        }
         public void FindDataMap()
         {
             var path = "Assets/Scripts/ScriptableObjects/";

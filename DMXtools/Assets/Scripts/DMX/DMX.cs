@@ -178,6 +178,7 @@ namespace IA
                 serialPort.Close();
                 serialPort.Dispose();
             }
+            Debug.Log("DMX port closed");
         }
     }
 }

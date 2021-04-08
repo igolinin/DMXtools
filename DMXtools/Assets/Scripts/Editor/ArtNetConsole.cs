@@ -58,6 +58,7 @@ namespace IA
             remote = new IPEndPoint(FindFromHostName(remoteIP), ArtNetSocket.Port);
             artnet.Open(FindFromHostName("localhost"), null);
             FindDataMap();
+            FindAllHeads();
             Debug.Log("artnet socket");
             artNetData.dmxUpdate.AddListener(Repaint);
             ArtnetReceiver(CallUpdate);
@@ -136,16 +137,17 @@ namespace IA
                     sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
                     if (sendDMX && dMX == null)
                     {
-                        dMX = new DMX(dmxUniverse-1);
+                        dMX = new DMX(dmxUniverse - 1);
                     }
-                    if(!sendDMX && dMX != null)
+                    if (!sendDMX && dMX != null)
                     {
                         dMX.Quit();
+                        dMX = null;
                     }
                 }
                 else
                 {
-                    receiveArtNet[activeUniverse] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse]);
+                    receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse]);
                     if (GUILayout.Button("Update art-net data"))
                     {
                         CallUpdate();
@@ -159,7 +161,8 @@ namespace IA
         void DrawSidePanel()
         {
             GUILayout.BeginArea(side);
-            if (NumberOfSelected() == 0){
+            if (NumberOfSelected() == 0)
+            {
                 groupController = null;
                 selectedHeadObjects = new List<DMXFixture>();
                 ResetSelection();
@@ -180,14 +183,15 @@ namespace IA
                 }
                 else if (/* NumberOfSelected() != selectedHeadObjects.Count */true)
                 {
-                    
+
                     foreach (var head in heads[activeUniverse])
                     {
                         if (head.selected && !head.added)
                         {
                             groupController.AddSelected(head);
                             selectedHeadObjects.Add(head);
-                        }else
+                        }
+                        else
                         if (head.selected == false && head.added == true)
                         {
                             groupController.RemoveDeselected(head);
@@ -213,12 +217,12 @@ namespace IA
 
                     foreach (DMXFixture device in channelFunction.Value.devices)
                     {
-                        if (i != artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress+device.getChannelFunctions[channelFunction.Key]])
+                        if (i != artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key]])
                         {
-                            artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress+device.getChannelFunctions[channelFunction.Key]] = (byte)i;
+                            artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key]] = (byte)i;
                             if (sendDMX & activeUniverse == dmxUniverse)
                             {
-                                dMX[device.getDmxAddress+device.getChannelFunctions[channelFunction.Key] + 1] = (byte)i;
+                                dMX[device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key] + 1] = (byte)i;
                             }
                             else
                             {
@@ -236,7 +240,7 @@ namespace IA
         }
         void DrawBody()
         {
-            
+
             GUILayout.BeginArea(body);
             EditorGUILayout.BeginHorizontal();
 
@@ -384,17 +388,27 @@ namespace IA
                     for (int j = 0; j < numberOfColumns; j++)
                     {
                         //
-                        int currentHead = f * numberOfColumns + j;
-                        if (currentHead >= patchSize[activeUniverse])
-                            continue;
-                        EditorGUILayout.BeginVertical("box");
-                        EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(100));
-                        EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
-                        EditorGUILayout.LabelField("Start CH: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(70));
-                        EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
-                        heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
-                        EditorGUILayout.EndHorizontal();
-                        EditorGUILayout.EndVertical();
+                        try
+                        {
+                            int currentHead = f * numberOfColumns + j;
+                            if (currentHead >= patchSize[activeUniverse])
+                                continue;
+                            EditorGUILayout.BeginVertical("box");
+                            EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(100));
+                            EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
+                            EditorGUILayout.LabelField("Start CH: " , GUILayout.MaxWidth(50));
+                            int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(20));
+                            if(dmxAddr != heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress)
+                                heads[activeUniverse][currentHead].GetComponent<DMXFixture>().dmxAddress = dmxAddr;
+                            EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
+                            heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.EndVertical();
+                        }
+                        catch
+                        {
+                            FindAllHeads();
+                        }
 
                     }
 
@@ -534,7 +548,7 @@ namespace IA
             }
             return address;
         }
-        
+
 
     }
 }
