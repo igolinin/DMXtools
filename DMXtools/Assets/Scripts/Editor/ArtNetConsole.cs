@@ -147,7 +147,7 @@ namespace IA
                 }
                 else
                 {
-                    receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse]);
+                    receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse - 1]);
                     if (GUILayout.Button("Update art-net data"))
                     {
                         CallUpdate();
@@ -254,7 +254,7 @@ namespace IA
             }
             else
             {
-                if (receiveArtNet[activeUniverse])
+                if (receiveArtNet[activeUniverse - 1])
                     DrawMap();
                 else
                     DrawSliders();
@@ -394,7 +394,7 @@ namespace IA
                             if (currentHead >= patchSize[activeUniverse])
                                 continue;
                             EditorGUILayout.BeginVertical("box");
-                            EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(100));
+                            EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(120));
                             EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
                             EditorGUILayout.LabelField("Start CH: " , GUILayout.MaxWidth(50));
                             int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(20));
@@ -405,7 +405,7 @@ namespace IA
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
                         }
-                        catch
+                        catch(Exception e)
                         {
                             FindAllHeads();
                         }
