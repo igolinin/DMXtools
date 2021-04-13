@@ -20,12 +20,12 @@ namespace IA
         protected int numberOfChannels;
         [SerializeField]
         protected int universe;
-        public bool selected=false;
+        public bool selected = false;
         public bool added = false;
         public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
-        public virtual int getDmxAddress { get{return dmxAddress;} set{SetAddress(value);}}
-        public virtual Dictionary<string, int> getChannelFunctions { get;}
+        public virtual int getDmxAddress { get { return dmxAddress; } set { SetAddress(value); } }
+        public virtual Dictionary<string, int> getChannelFunctions { get; }
         public virtual void OnEnable()
         {
             FindDataMap();
@@ -40,9 +40,13 @@ namespace IA
             var objectName = "DataMap.asset";
             artNetData = AssetDatabase.LoadAssetAtPath<ArtNetData>(path + objectName);
         }
+        [DrawGizmo(GizmoType.InSelectionHierarchy | GizmoType.NotInSelectionHierarchy)]
+        static void DrawGameObjectName(DMXFixture fixture, GizmoType gizmoType)
+        {
+            Handles.Label(fixture.transform.position + new Vector3(0, 1.5f, -0.5f), fixture.universe.ToString()+"-"+fixture.dmxAddress.ToString());
+        }
 
 
-        
     }
     public static class ChannelName
     {

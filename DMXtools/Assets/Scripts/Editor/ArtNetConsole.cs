@@ -52,6 +52,7 @@ namespace IA
             window.titleContent.text = "ArtNet Console";
             window.Show();
         }
+        
         void OnEnable()
         {
             artnet = new ArtNetSocket();
@@ -145,14 +146,13 @@ namespace IA
                         dMX = null;
                     }
                 }
-                else
+
+                receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse - 1]);
+                if (GUILayout.Button("Update art-net data"))
                 {
-                    receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse - 1]);
-                    if (GUILayout.Button("Update art-net data"))
-                    {
-                        CallUpdate();
-                    }
+                    CallUpdate();
                 }
+
             }
 
             EditorGUILayout.EndHorizontal();
@@ -176,10 +176,13 @@ namespace IA
                     foreach (var head in heads[activeUniverse])
                     {
                         if (head.selected)
+                        {
                             selectedHeadObjects.Add(head);
+                            Selection.activeGameObject=head.gameObject;
+                        }
                     }
                     //EditorGUILayout.LabelField(""+selectedHeadObjects.Count);
-                    groupController = new GroupController(selectedHeadObjects);
+                    groupController = new GroupController(selectedHeadObjects, artNetData);
                 }
                 else if (/* NumberOfSelected() != selectedHeadObjects.Count */true)
                 {
@@ -188,7 +191,8 @@ namespace IA
                     {
                         if (head.selected && !head.added)
                         {
-                            groupController.AddSelected(head);
+                            groupController.AddSelected(head, artNetData);
+                            Selection.activeGameObject=head.gameObject;
                             selectedHeadObjects.Add(head);
                         }
                         else
@@ -270,7 +274,7 @@ namespace IA
                 {
                     var packet = e.Packet as ArtNetDmxPacket;
                     var universe = packet.Universe;
-                    //Debug.Log("universe: " + receiveArtNet[universe]);
+                    //Debug.Log("universe: " + universe);
                     if (receiveArtNet[universe])
                     {
                         artNetData.SetData(universe, packet.DmxData);
@@ -396,16 +400,16 @@ namespace IA
                             EditorGUILayout.BeginVertical("box");
                             EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(120));
                             EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
-                            EditorGUILayout.LabelField("Start CH: " , GUILayout.MaxWidth(50));
+                            EditorGUILayout.LabelField("Start CH: ", GUILayout.MaxWidth(50));
                             int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(20));
-                            if(dmxAddr != heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress)
+                            if (dmxAddr != heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress)
                                 heads[activeUniverse][currentHead].GetComponent<DMXFixture>().dmxAddress = dmxAddr;
                             EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
                             heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             FindAllHeads();
                         }

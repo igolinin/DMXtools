@@ -105,7 +105,7 @@ namespace IA
         public override void OnEnable()
         {
 
-            light = GetComponent<Light>();
+            light = GetComponentInChildren<Light>();
             FindDataMap();
             artNetData.dmxUpdate.AddListener(UpdateDMX);
             StartCoroutine(UpdateThread());

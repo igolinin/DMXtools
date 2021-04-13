@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4211956252687182212}
   - component: {fileID: 4938445656103119983}
   - component: {fileID: 3075505455190507209}
-  - component: {fileID: 3674325347769494219}
   m_Layer: 0
   m_Name: Flood
   m_TagString: Untagged
@@ -175,9 +174,9 @@ MonoBehaviour:
   m_VolumetricShadowDimmer: 1
   m_ShadowFadeDistance: 10000
   m_UseContactShadow:
-    m_Override: 0
+    m_Override: 1
     m_UseOverride: 1
-    m_Level: 0
+    m_Level: 2
   m_RayTracedContactShadow: 0
   m_ShadowTint: {r: 0, g: 0, b: 0, a: 1}
   m_PenumbraTint: 0
@@ -205,28 +204,6 @@ MonoBehaviour:
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
   m_AreaLightEmissiveMeshLayer: -1
---- !u!114 &3674325347769494219
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4211956252687182219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7147560e6f24d814bbd80c8ad8000875, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
-  dmxAddress: 41
-  numberOfChannels: 7
-  universe: 1
-  selected: 0
-  added: 0
-  panMotor: {fileID: 7445200482938206016}
-  panMovement: 360
-  tiltMovement: 360
-  refreshRate: 5
 --- !u!1 &7445200482938206017
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,6 +244,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7445200484603407426}
+  - component: {fileID: 198985154315289930}
   m_Layer: 0
   m_Name: Flood HD
   m_TagString: Untagged
@@ -289,3 +267,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &198985154315289930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7445200484603407427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7147560e6f24d814bbd80c8ad8000875, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
+  dmxAddress: 41
+  numberOfChannels: 7
+  universe: 1
+  selected: 0
+  added: 0
+  panMotor: {fileID: 7445200482938206016}
+  panMovement: 360
+  tiltMovement: 360
+  refreshRate: 5

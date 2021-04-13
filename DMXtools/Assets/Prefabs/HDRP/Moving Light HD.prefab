@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 645342728751139702}
   - component: {fileID: 8446149664229465732}
   - component: {fileID: 2396574480541405192}
-  - component: {fileID: 288881020762468104}
   m_Layer: 0
   m_Name: MovingLight
   m_TagString: Untagged
@@ -205,28 +204,6 @@ MonoBehaviour:
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
   m_AreaLightEmissiveMeshLayer: -1
---- !u!114 &288881020762468104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645342728751139705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7147560e6f24d814bbd80c8ad8000875, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
-  dmxAddress: 8
-  numberOfChannels: 7
-  universe: 2
-  selected: 0
-  added: 0
-  panMotor: {fileID: 6185063291185354162}
-  panMovement: 360
-  tiltMovement: 180
-  refreshRate: 5
 --- !u!1 &6185063291185354163
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,6 +244,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6185063291801980592}
+  - component: {fileID: 7448461359380462235}
   m_Layer: 0
   m_Name: Moving Light HD
   m_TagString: Untagged
@@ -289,3 +267,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7448461359380462235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6185063291801980593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7147560e6f24d814bbd80c8ad8000875, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
+  dmxAddress: 1
+  numberOfChannels: 7
+  universe: 2
+  selected: 0
+  added: 0
+  panMotor: {fileID: 6185063291185354162}
+  panMovement: 360
+  tiltMovement: 180
+  refreshRate: 5

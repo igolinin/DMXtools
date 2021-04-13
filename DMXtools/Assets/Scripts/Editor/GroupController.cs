@@ -10,25 +10,25 @@ namespace IA
 
         public Dictionary<string, DeviceGroup> map;
         
-        public GroupController(List<DMXFixture> devices)
+        public GroupController(List<DMXFixture> devices, ArtNetData artNetData)
         {
             map = new Dictionary<string, DeviceGroup>();
             
             foreach(DMXFixture device in devices)
             {
-                AddSelected(device);
+                AddSelected(device, artNetData);
             }
         }
-        public GroupController(DMXFixture device)
+        public GroupController(DMXFixture device, ArtNetData artNetData)
         {
             map = new Dictionary<string, DeviceGroup>();
-            AddSelected(device);
+            AddSelected(device, artNetData);
         }
         public int getSize()
         {
             return map.Count;
         }
-        public void AddSelected(DMXFixture device)
+        public void AddSelected(DMXFixture device, ArtNetData artNetData)
         {
             foreach (KeyValuePair<string, int> channelFunction in device.getChannelFunctions)
             {
@@ -40,7 +40,8 @@ namespace IA
                 else
                 {
                     //map.Add(channelFunction.Key, new List<int[]>{new int[]{device.getUniverse, device.getDmxAddress + channelFunction.Value}});
-                    var newDeviceGroup = new DeviceGroup(device);
+                    int level = artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key]];
+                    var newDeviceGroup = new DeviceGroup(device, level);
                     map.Add(channelFunction.Key, newDeviceGroup);
                 }
             }
