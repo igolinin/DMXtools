@@ -60,7 +60,6 @@ namespace IA
             artnet.Open(FindFromHostName("localhost"), null);
             FindDataMap();
             FindAllHeads();
-            Debug.Log("artnet socket");
             artNetData.dmxUpdate.AddListener(Repaint);
             ArtnetReceiver(CallUpdate);
 
@@ -258,7 +257,7 @@ namespace IA
             }
             else
             {
-                if (receiveArtNet[activeUniverse - 1])
+                if (activeUniverse != 0 && receiveArtNet[activeUniverse - 1])
                     DrawMap();
                 else
                     DrawSliders();
@@ -368,7 +367,7 @@ namespace IA
                 ResetSelection();
                 ResetGroupController();
             }
-            if (GUILayout.Button("Black Out"))
+            if (GUILayout.Button("Blackout"))
             {
                 ClearOutput();
             }
@@ -409,9 +408,9 @@ namespace IA
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
                         }
-                        catch (Exception e)
+                        catch
                         {
-                            FindAllHeads();
+                            heads = FindAllHeads();
                         }
 
                     }

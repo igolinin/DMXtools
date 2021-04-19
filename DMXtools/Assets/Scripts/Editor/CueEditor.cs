@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -29,11 +30,12 @@ namespace IA
         void OnEnable()
         {
             FindDataMap();
-            ReadData();
+            ReadData(SceneManager.GetActiveScene());
+            EditorSceneManager.sceneOpened += ChangedActiveScene;
         }
         void OnDisable()
         {
-            SaveData();
+            SaveData(SceneManager.GetActiveScene());
         }
         void OnGUI()
         {
@@ -73,7 +75,7 @@ namespace IA
             if (GUILayout.Button("Save stack"))
             {
                 //ClearOutput();
-                SaveData();
+                SaveData(SceneManager.GetActiveScene());
             }
             if (GUILayout.Button("Clear Stack"))
             {
@@ -81,7 +83,7 @@ namespace IA
             }
             playback = EditorGUILayout.Toggle("Playback", playback, GUILayout.Width(200));
 
-            
+
 
             EditorGUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -94,7 +96,7 @@ namespace IA
         {
             GUILayout.BeginArea(side);
 
-            
+
             GUILayout.EndArea();
         }
         void DrawBody()
@@ -105,8 +107,8 @@ namespace IA
             GUILayout.BeginVertical();
             EditorGUILayout.BeginHorizontal();
             cueName = GUILayout.TextField(cueName);
-            
-            
+
+
             if (GUILayout.Button("Record Cue"))
             {
                 RecordOutput(artNetData.dmxDataMap, cueName);
@@ -153,7 +155,7 @@ namespace IA
         void RemoveCue()
         {
             cueStack.RemoveCue(currentCue);
-            if(currentCue > 0)
+            if (currentCue > 0)
                 currentCue--;
         }
         void CallUpdate()
@@ -174,19 +176,38 @@ namespace IA
                 cueStack = new CueStack(cue);
             }
         }
-        private void SaveData()
+        private void SaveData(Scene scene)
         {
             //var data = JsonUtility.ToJson(cueStack);
             string json = JsonConvert.SerializeObject(cueStack, Formatting.Indented);
-            System.IO.File.WriteAllText("Assets/Scripts/ScriptableObjects/" + "/presets.json", json);
-            Debug.Log("STACK IS SAVED");
+            string path = presetPath(scene);
+            System.IO.File.WriteAllText(path, json);
         }
-        void ReadData()
+        string presetPath(Scene scene)
         {
-            string json = System.IO.File.ReadAllText("Assets/Scripts/ScriptableObjects/" + "/presets.json");
-            var stack = JsonConvert.DeserializeObject<CueStack>(json);
-            cueStack = new CueStack();
-            cueStack = stack;
+            string sceneName = scene.name;
+            string path = "Assets/Presets/CueStacks/" + sceneName + ".json";
+            return path;
         }
+        void ReadData(Scene scene)
+        {
+            if (System.IO.File.Exists(presetPath(scene)))
+            {
+                string json = System.IO.File.ReadAllText(presetPath(scene));
+                var stack = JsonConvert.DeserializeObject<CueStack>(json);
+                cueStack = new CueStack();
+                cueStack = stack;
+            }else
+            {
+                cueStack = new CueStack();
+            }
+
+        }
+        private void ChangedActiveScene(Scene next, OpenSceneMode mode = OpenSceneMode.Single)
+    {
+        //SaveData(current);
+        ReadData(next);
+        Debug.Log("Scene changed");
+    }
     }
 }
