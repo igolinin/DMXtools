@@ -7,4 +7,4 @@ It is based on the following code repositories:
 * https://github.com/davivid/Unity-DMX
 
 Unity Package:
-* https://github.com/igolinin/DMXtools/blob/main/DMXtools/DMXtools.unitypackage
+* https://github.com/igolinin/DMXtools/blob/main/DMXtools.unitypackage
