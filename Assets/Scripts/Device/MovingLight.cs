@@ -23,9 +23,8 @@ namespace IA
         public float tiltMovement = 180f;
         float panTarget;
         float tiltTarget;
-        float minRotSpeed = 1f;
         float maxRotSpeed = 100f;
-        private Dictionary<string, int> channelFunctions = new Dictionary<string, int> { { ChannelName.RED, 0 }, { ChannelName.GREEN, 1 }, { ChannelName.BLUE, 2 }, { ChannelName.WHITE, 3 }, { ChannelName.TILT, 4 }, { ChannelName.PAN, 5 }, { ChannelName.STROBE, 6 } };
+        private Dictionary<string, int> channelFunctions = new Dictionary<string, int> { { ChannelName.RED, 0 }, { ChannelName.GREEN, 1 }, { ChannelName.BLUE, 2 }, { ChannelName.WHITE, 3 }, { ChannelName.TILT, 4 }, { ChannelName.PAN, 5 } };
 
         float pan;
         float tilt;
@@ -33,7 +32,7 @@ namespace IA
         bool update = true;
         [SerializeField]
         float refreshRate = 5f;
-        float maxIntensity = 6f;
+        float maxIntensity = 20f;
         float strobeTimer = 0;
         void SetPan()
         {
@@ -68,28 +67,16 @@ namespace IA
         }
         IEnumerator UpdateThread()
         {
+            #if UNITY_EDITOR
             while (update)
             {
                 GetWireData();
                 UpdateRotation();
                 yield return new WaitForSeconds(1 / refreshRate);
             }
+            #endif
         }
-        void Flash()
-        {
-
-            if (artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.STROBE]] > 0)
-            {
-                strobeTimer -= Time.deltaTime;
-                if (strobeTimer < Time.deltaTime)
-                {
-                    strobeTimer = 1 / artNetData.dmxDataMap[universe - 1][dmxAddress - 1 + (int)channelFunctions[ChannelName.STROBE]];
-                    Toggle();
-                }
-            }
-
-
-        }
+        
         void SetColor()
         {
             var color = light.color;
@@ -104,9 +91,8 @@ namespace IA
 
         public override void OnEnable()
         {
-
+            base.OnEnable();
             light = GetComponentInChildren<Light>();
-            FindDataMap();
             artNetData.dmxUpdate.AddListener(UpdateDMX);
             StartCoroutine(UpdateThread());
         }
@@ -122,16 +108,7 @@ namespace IA
                 SetColor();
                 SetPan();
                 SetTilt();
-                Flash();
             }
-        }
-        void Toggle()
-        {
-            /* if (light.intensity == 0)
-                light.intensity = maxIntensity;
-            if (light.intensity != 0)
-                light.intensity = 0; */
-            //light.enabled = !light.enabled;
         }
         void OnDisable()
         {

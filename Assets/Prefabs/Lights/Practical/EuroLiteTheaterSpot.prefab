@@ -9,8 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8156415241504080090}
-  - component: {fileID: 8156415241504080089}
-  - component: {fileID: 1728733777}
+  - component: {fileID: 6871650165241763174}
   m_Layer: 0
   m_Name: EuroLiteTheaterSpot
   m_TagString: Untagged
@@ -32,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8156415241504080089
+--- !u!114 &6871650165241763174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,58 +40,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 8156415241504080088}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f7126de8d0be5a46a8a1fb4984cc1cf, type: 3}
+  m_Script: {fileID: 11500000, guid: b8991c8898cd1664e9dcb43b02a595d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
   dmxAddress: 15
-  numberOfChannels: 6
+  numberOfChannels: 5
   universe: 8
   selected: 0
   added: 0
+  sendDmx: 0
+  correctionRed: 0
+  correctionGreen: 0
+  correctionBlue: 0
   colorProbeTexture: {fileID: 8400000, guid: 94af394b28badd441b40d23f63b5946d, type: 2}
   color:
     serializedVersion: 2
-    rgba: 4282989877
-  Channels: []
---- !u!23 &1728733777
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8156415241504080088}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 294b9ba31d8eaf5449e0ecd3e261bf09, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
+    rgba: 0
+  channels:
+  - Red
+  - Green
+  - Blue
+  - White
+  - Dimmer

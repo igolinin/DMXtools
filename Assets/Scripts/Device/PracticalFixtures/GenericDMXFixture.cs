@@ -7,7 +7,7 @@ namespace IA
 {
 
     [ExecuteAlways]
-    public class MixPanel60v1 : DMXFixture
+    public class GenericDMXFixture : DMXFixture
     {
         public override int getUniverse { get { return universe = 8; } }
         public override int getDmxAddress { get { return dmxAddress; } }
@@ -42,7 +42,7 @@ namespace IA
         }
         void Update()
         {
-            if(sendDmx)
+            if(sendDmx && colorProbeTexture != null)
             {
                 ReadColor();
                 UpdateDMX();
@@ -85,9 +85,11 @@ namespace IA
             {
                 channelFunctions.Add(channels[i], i);
             }
+            numberOfChannels = channels.Length;
         }
         
 
     }
     
 }
+

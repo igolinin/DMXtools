@@ -1,4 +1,4 @@
-# DMXtools
+# DMX tools for Unity
 Set of tools to simplify the workflow of controlling virtual and practical lights in Unity3D. Support for ArtNet in and USB DMX out. Could be used for the in-camera VFX virtual productions, live events and so on.
 It is based on the following code repositories:
 
@@ -8,3 +8,6 @@ It is based on the following code repositories:
 
 Unity Package:
 * https://github.com/igolinin/DMXtools/blob/main/DMXtools.unitypackage
+
+Manual:
+* https://github.com/igolinin/DMXtools/blob/main/Manual.pdf

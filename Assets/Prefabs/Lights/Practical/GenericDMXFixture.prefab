@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7073067236952851305
+--- !u!1 &648928861758594757
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,36 +8,36 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6529248812942630795}
-  - component: {fileID: 2611285951334680625}
+  - component: {fileID: 3581889210003472935}
+  - component: {fileID: 5698398012885980573}
   m_Layer: 0
-  m_Name: MixPanel60v1
+  m_Name: GenericDMXFixture
   m_TagString: Untagged
   m_Icon: {fileID: 7250588514170254948, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6529248812942630795
+--- !u!4 &3581889210003472935
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7073067236952851305}
+  m_GameObject: {fileID: 648928861758594757}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.2700002, y: 6.7700005, z: -1.9700003}
+  m_LocalPosition: {x: 2.2700002, y: 6.7700005, z: 4.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2611285951334680625
+--- !u!114 &5698398012885980573
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7073067236952851305}
+  m_GameObject: {fileID: 648928861758594757}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8991c8898cd1664e9dcb43b02a595d4, type: 3}
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
   dmxAddress: 1
-  numberOfChannels: 0
+  numberOfChannels: 7
   universe: 8
   selected: 0
   added: 0
@@ -53,15 +53,8 @@ MonoBehaviour:
   correctionRed: 0
   correctionGreen: 0
   correctionBlue: 0
-  colorProbeTexture: {fileID: 8400000, guid: 94af394b28badd441b40d23f63b5946d, type: 2}
+  colorProbeTexture: {fileID: 0}
   color:
     serializedVersion: 2
-    rgba: 0
-  channels:
-  - Red
-  - Green
-  - Blue
-  - White
-  - Yellow
-  - Hard-Soft
-  - Silent-Normal-Boost
+    rgba: 4290789426
+  channels: []
