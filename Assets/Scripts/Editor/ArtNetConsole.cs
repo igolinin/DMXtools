@@ -36,7 +36,7 @@ namespace IA
         int numberOfColumns = 3;
         int numberOfHeads;
         bool[] receiveArtNet = new bool[numberOfUniverses + 1];
-        string[] views = { "channels", "heads" };
+        string[] views = { "Channels", "Heads" };
         string[] universes = { "All", "Universe 1", "Universe 2", "Universe 3", "Universe 4", "Universe 5", "Universe 6", "Universe 7", "Universe 8" };
 
 
@@ -52,19 +52,24 @@ namespace IA
             window.titleContent.text = "ArtNet Console";
             window.Show();
         }
-        
+
         void OnEnable()
         {
-            artnet = new ArtNetSocket();
-            remote = new IPEndPoint(FindFromHostName(remoteIP), ArtNetSocket.Port);
-            artnet.Open(FindFromHostName("localhost"), null);
             FindDataMap();
             FindAllHeads();
             artNetData.dmxUpdate.AddListener(Repaint);
+            OpenArtNet();
+
+        }
+        void OpenArtNet()
+        {
+            if (artnet != null)
+                artnet.Close();
+            artnet = new ArtNetSocket();
+            remote = new IPEndPoint(FindFromHostName(remoteIP), ArtNetSocket.Port);
+            //FindFromHostName("192.168.1.124")
+            artnet.Open(IPAddress.Any, null);
             ArtnetReceiver(CallUpdate);
-
-
-
         }
         void Update()
         {
@@ -105,7 +110,8 @@ namespace IA
             header.x = 0;
             header.y = 0;
             header.width = Screen.width;
-            header.height = 40;
+            header.height = 65
+            ;
 
 
             side.x = 0;
@@ -126,15 +132,24 @@ namespace IA
         void DrawHeader()
         {
             GUILayout.BeginArea(header);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Full Blackout", GUILayout.Width(150)) )
+            {
+                ResetSelection();
+                ResetGroupController();
+                ClearOutput();
+            }
+            EditorGUILayout.EndHorizontal();
             activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 9);
             EditorGUILayout.BeginHorizontal();
+            
             if (activeUniverse != 0)
             {
-                bool setAsDmx = EditorGUILayout.Toggle("DMX out universe", dmxUniverse == activeUniverse, GUILayout.Width(200));
+                bool setAsDmx = EditorGUILayout.ToggleLeft("DMX Out Universe", dmxUniverse == activeUniverse, GUILayout.Width(150));
                 if (setAsDmx)
                 {
                     dmxUniverse = activeUniverse;
-                    sendDMX = EditorGUILayout.Toggle("serial DMX", sendDMX);
+                    sendDMX = EditorGUILayout.ToggleLeft("Serial DMX", sendDMX);
                     if (sendDMX && dMX == null)
                     {
                         dMX = new DMX(dmxUniverse - 1);
@@ -145,15 +160,19 @@ namespace IA
                         dMX = null;
                     }
                 }
-
-                receiveArtNet[activeUniverse - 1] = EditorGUILayout.Toggle("receive ArtNet", receiveArtNet[activeUniverse - 1]);
-                if (GUILayout.Button("Update art-net data"))
+                /* remoteIP = GUILayout.TextField(remoteIP);
+                if(GUILayout.Button("change",GUILayout.Width(60)))
+                {
+                    OpenArtNet();
+                } */
+                receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive art-net", receiveArtNet[activeUniverse - 1]);
+                if (GUILayout.Button("Update art-net data", GUILayout.Width(150)))
                 {
                     CallUpdate();
                 }
 
             }
-
+            
             EditorGUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -177,7 +196,7 @@ namespace IA
                         if (head.selected)
                         {
                             selectedHeadObjects.Add(head);
-                            Selection.activeGameObject=head.gameObject;
+                            Selection.activeGameObject = head.gameObject;
                         }
                     }
                     //EditorGUILayout.LabelField(""+selectedHeadObjects.Count);
@@ -191,7 +210,7 @@ namespace IA
                         if (head.selected && !head.added)
                         {
                             groupController.AddSelected(head, artNetData);
-                            Selection.activeGameObject=head.gameObject;
+                            Selection.activeGameObject = head.gameObject;
                             selectedHeadObjects.Add(head);
                         }
                         else
@@ -236,7 +255,18 @@ namespace IA
                     }
                     EditorGUILayout.EndHorizontal();
                 }
+
                 EditorGUILayout.EndVertical();
+            }
+            if ( PlayerPrefs.GetInt("survey") != 1 )
+            {
+                var redTextstyle = new GUIStyle(GUI.skin.button);
+                redTextstyle.normal.textColor = Color.red;
+                if (GUILayout.Button("This button will go away after you click it to answer my questions.", redTextstyle))
+                {
+                    Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSccgEIekGKbzOA9qYSg5l_A_0poEjEH9mMbKafyqQVrVC0vtQ/viewform?usp=sf_link");
+                    PlayerPrefs.SetInt("survey", 1);
+                }
             }
 
             GUILayout.EndArea();
@@ -279,11 +309,8 @@ namespace IA
                         artNetData.SetData(universe, packet.DmxData);
                         //CallUpdate();
                     }
-
-
-
-
                 }
+
                 callback();
             };
         }
@@ -296,7 +323,6 @@ namespace IA
 
             if (artNetData == null)
             {
-                Debug.Log("Couldn't find dataMap. Creating dataMap...");
                 artNetData = CreateInstance<ArtNetData>();
                 AssetDatabase.CreateAsset(artNetData, path + objectName);
                 AssetDatabase.SaveAssets();
@@ -315,7 +341,6 @@ namespace IA
             AssetDatabase.Refresh();
             EditorUtility.SetDirty(artNetData);
             AssetDatabase.SaveAssets();
-            Debug.Log("saved");
         }
         void DrawSliders()
         {
@@ -355,26 +380,18 @@ namespace IA
             if (GUILayout.Button("Find Heads"))
             {
                 heads = FindAllHeads();
-                //numberOfHeads = heads[activeUniverse].Length;
-
             }
-            if (GUILayout.Button("Connect Heads"))
-            {
-                ConnectHeads();
-            }
+            
             if (GUILayout.Button("Reset selection"))
             {
                 ResetSelection();
                 ResetGroupController();
             }
-            if (GUILayout.Button("Blackout"))
-            {
-                ClearOutput();
-            }
+            
             EditorGUILayout.EndHorizontal();
 
 
-            if (heads != null)
+            if (heads != null && patchSize != null )
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("number of patched heads :" + patchSize[activeUniverse], GUILayout.MaxWidth(200));
@@ -400,10 +417,14 @@ namespace IA
                             EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(120));
                             EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
                             EditorGUILayout.LabelField("Start CH: ", GUILayout.MaxWidth(50));
-                            int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(20));
+                            int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(30));
                             if (dmxAddr != heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress)
                                 heads[activeUniverse][currentHead].GetComponent<DMXFixture>().dmxAddress = dmxAddr;
-                            EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(100));
+                            if (GUILayout.Button("auto", GUILayout.MaxWidth(40)))
+                            {
+                                AutoPatch(heads[activeUniverse][currentHead]);
+                            }
+                            EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(70));
                             heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
@@ -421,6 +442,11 @@ namespace IA
             }
 
 
+        }
+        void AutoPatch(DMXFixture device)
+        {
+            var maxAddressedHead = heads[activeUniverse].OrderByDescending(head => head.getDmxAddress).First();
+            device.GetComponent<DMXFixture>().dmxAddress = maxAddressedHead.getDmxAddress + maxAddressedHead.getNumberOfChannels;
         }
         int NumberOfSelected()
         {

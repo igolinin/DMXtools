@@ -81,7 +81,7 @@ namespace IA
             {
                 cueStack.ClearStack();
             }
-            playback = EditorGUILayout.Toggle("Playback", playback, GUILayout.Width(200));
+            playback = EditorGUILayout.ToggleLeft("Playback", playback, GUILayout.Width(150));
 
 
 
@@ -141,7 +141,6 @@ namespace IA
 
             if (artNetData == null)
             {
-                Debug.Log("Couldn't find dataMap. Creating dataMap...");
                 artNetData = CreateInstance<ArtNetData>();
                 AssetDatabase.CreateAsset(artNetData, path + objectName);
                 AssetDatabase.SaveAssets();

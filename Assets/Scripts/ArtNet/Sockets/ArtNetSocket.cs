@@ -81,7 +81,7 @@ namespace ArtNet.Sockets
             Bind(new IPEndPoint(LocalIP, Port));
             SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
             PortOpen = true;
-
+            
             StartRecieve();
         }
 

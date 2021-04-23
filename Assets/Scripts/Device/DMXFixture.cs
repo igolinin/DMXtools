@@ -29,6 +29,12 @@ namespace IA
         public virtual void OnEnable()
         {
             FindDataMap();
+            if (PrefabUtility.IsPartOfPrefabInstance(transform.gameObject))
+            {
+                var root = PrefabUtility.GetOutermostPrefabInstanceRoot(transform.gameObject);
+                PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            }
+            
         }
         public void SetAddress(int value)
         {
