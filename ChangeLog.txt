@@ -3,3 +3,7 @@ v.062a
 2. Unpack automatically prefab when dragged into the scene.
 3. Auto patch.
 4. Survey button.
+v.063a
+1. Grid is shown for art-net controlled universes for both views.
+2. Buttons moved above universes.
+3. Number of channels of the fixture linked with dictionary.

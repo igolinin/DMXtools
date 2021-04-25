@@ -43,7 +43,7 @@ namespace IA
 
         Vector2 scroll = new Vector2();
 
-        [MenuItem("Window/ArtNet/Console")]
+        [MenuItem("Window/Art-net/Console")]
         static void Init()
         {
             // Get existing open window or if none, make a new one:
@@ -139,6 +139,20 @@ namespace IA
                 ResetGroupController();
                 ClearOutput();
             }
+            if (GUILayout.Button("Find Heads", GUILayout.Width(150)))
+            {
+                heads = FindAllHeads();
+            }
+            
+            if (GUILayout.Button("Reset Selection", GUILayout.Width(150)))
+            {
+                ResetSelection();
+                ResetGroupController();
+            }
+            if (GUILayout.Button("Select All", GUILayout.Width(150)) )
+            {
+                SelectAll();
+            }
             EditorGUILayout.EndHorizontal();
             activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 9);
             EditorGUILayout.BeginHorizontal();
@@ -165,8 +179,8 @@ namespace IA
                 {
                     OpenArtNet();
                 } */
-                receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive art-net", receiveArtNet[activeUniverse - 1]);
-                if (GUILayout.Button("Update art-net data", GUILayout.Width(150)))
+                receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive Art-net", receiveArtNet[activeUniverse - 1]);
+                if (GUILayout.Button("Update Art-net Data", GUILayout.Width(150)))
                 {
                     CallUpdate();
                 }
@@ -258,16 +272,7 @@ namespace IA
 
                 EditorGUILayout.EndVertical();
             }
-            if ( PlayerPrefs.GetInt("survey") != 1 )
-            {
-                var redTextstyle = new GUIStyle(GUI.skin.button);
-                redTextstyle.normal.textColor = Color.red;
-                if (GUILayout.Button("This button will go away after you click it to answer my questions.", redTextstyle))
-                {
-                    Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSccgEIekGKbzOA9qYSg5l_A_0poEjEH9mMbKafyqQVrVC0vtQ/viewform?usp=sf_link");
-                    PlayerPrefs.SetInt("survey", 1);
-                }
-            }
+            
 
             GUILayout.EndArea();
         }
@@ -279,19 +284,23 @@ namespace IA
 
             activeView = GUILayout.SelectionGrid(activeView, views, 2);
             EditorGUILayout.EndHorizontal();
-            if (activeView == 1)
-            {
-                if (heads == null)
-                    FindAllHeads();
-                DrawHeads();
-            }
+            if (activeUniverse != 0 && receiveArtNet[activeUniverse - 1])
+                    DrawMap();
             else
             {
-                if (activeUniverse != 0 && receiveArtNet[activeUniverse - 1])
-                    DrawMap();
+                if (activeView == 1)
+                {
+                    if (heads == null)
+                        FindAllHeads();
+                    DrawHeads();
+                }
                 else
+                {
                     DrawSliders();
+
+                }
             }
+            
 
             GUILayout.EndArea();
         }
@@ -376,25 +385,13 @@ namespace IA
         }
         void DrawHeads()
         {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Find Heads"))
-            {
-                heads = FindAllHeads();
-            }
-            
-            if (GUILayout.Button("Reset selection"))
-            {
-                ResetSelection();
-                ResetGroupController();
-            }
-            
-            EditorGUILayout.EndHorizontal();
+           
 
 
             if (heads != null && patchSize != null )
             {
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("number of patched heads :" + patchSize[activeUniverse], GUILayout.MaxWidth(200));
+                EditorGUILayout.LabelField("Number of Heads :" + patchSize[activeUniverse], GUILayout.MaxWidth(200));
                 EditorGUILayout.LabelField("Number of Columns", GUILayout.MaxWidth(120));
                 numberOfColumns = EditorGUILayout.IntSlider(numberOfColumns, 1, 10, GUILayout.Width(150));
 
@@ -416,7 +413,7 @@ namespace IA
                             EditorGUILayout.BeginVertical("box");
                             EditorGUILayout.LabelField(heads[activeUniverse][currentHead].name, GUILayout.MaxWidth(120));
                             EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(40));
-                            EditorGUILayout.LabelField("Start CH: ", GUILayout.MaxWidth(50));
+                            EditorGUILayout.LabelField("Address: ", GUILayout.MaxWidth(50));
                             int dmxAddr = EditorGUILayout.IntField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress, GUILayout.MaxWidth(30));
                             if (dmxAddr != heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getDmxAddress)
                                 heads[activeUniverse][currentHead].GetComponent<DMXFixture>().dmxAddress = dmxAddr;
@@ -424,7 +421,7 @@ namespace IA
                             {
                                 AutoPatch(heads[activeUniverse][currentHead]);
                             }
-                            EditorGUILayout.LabelField("Channels: " + heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels, GUILayout.MaxWidth(70));
+                            EditorGUILayout.LabelField( heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels +" Channels" , GUILayout.MaxWidth(70));
                             heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
@@ -522,6 +519,16 @@ namespace IA
                 heads[i].added = false;
             }
 
+        }
+        void SelectAll()
+        {
+            DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
+            for (int i = 0; i < heads.Length; i++)
+            {
+                heads[i].FindDataMap();
+                heads[i].selected = true;
+                heads[i].added = false;
+            }
         }
         void ResetGroupController()
         {

@@ -20,7 +20,7 @@ namespace IA
         int currentCue;
         bool playback;
 
-        [MenuItem("Window/ArtNet/Cue Editor")]
+        [MenuItem("Window/Art-net/Cue Editor")]
         static void Init()
         {
             CueEditor window = (CueEditor)EditorWindow.GetWindow(typeof(CueEditor));
@@ -72,7 +72,7 @@ namespace IA
         {
             GUILayout.BeginArea(header);
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save stack"))
+            if (GUILayout.Button("Save Stack"))
             {
                 //ClearOutput();
                 SaveData(SceneManager.GetActiveScene());
@@ -129,6 +129,16 @@ namespace IA
                     artNetData.SetData(cueStack.stack[currentCue].cueData);
                 }
             }
+            if ( PlayerPrefs.GetInt("survey") != 1 )
+            {
+                var redTextstyle = new GUIStyle(GUI.skin.button);
+                redTextstyle.normal.textColor = Color.red;
+                if (GUILayout.Button("This button will go away after \nyou click it to answer my questions.", redTextstyle, GUILayout.Height(60)))
+                {
+                    Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSccgEIekGKbzOA9qYSg5l_A_0poEjEH9mMbKafyqQVrVC0vtQ/viewform?usp=sf_link");
+                    PlayerPrefs.SetInt("survey", 1);
+                }
+            }
             GUILayout.EndVertical();
             GUILayout.EndArea();
         }
@@ -179,10 +189,10 @@ namespace IA
         {
             //var data = JsonUtility.ToJson(cueStack);
             string json = JsonConvert.SerializeObject(cueStack, Formatting.Indented);
-            string path = presetPath(scene);
+            string path = PresetPath(scene);
             System.IO.File.WriteAllText(path, json);
         }
-        string presetPath(Scene scene)
+        string PresetPath(Scene scene)
         {
             string sceneName = scene.name;
             string path = "Assets/Presets/CueStacks/" + sceneName + ".json";
@@ -190,9 +200,9 @@ namespace IA
         }
         void ReadData(Scene scene)
         {
-            if (System.IO.File.Exists(presetPath(scene)))
+            if (System.IO.File.Exists(PresetPath(scene)))
             {
-                string json = System.IO.File.ReadAllText(presetPath(scene));
+                string json = System.IO.File.ReadAllText(PresetPath(scene));
                 var stack = JsonConvert.DeserializeObject<CueStack>(json);
                 cueStack = new CueStack();
                 cueStack = stack;

@@ -16,11 +16,13 @@ namespace IA
         [SerializeField]
         public int dmxAddress;
 
-        [SerializeField]
         protected int numberOfChannels;
         [SerializeField]
         protected int universe;
+        [HideInInspector]
         public bool selected = false;
+        
+        [HideInInspector]
         public bool added = false;
         public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
@@ -29,6 +31,7 @@ namespace IA
         public virtual void OnEnable()
         {
             FindDataMap();
+            //CountChannels();
             if (PrefabUtility.IsPartOfPrefabInstance(transform.gameObject))
             {
                 var root = PrefabUtility.GetOutermostPrefabInstanceRoot(transform.gameObject);
@@ -51,7 +54,11 @@ namespace IA
         {
             Handles.Label(fixture.transform.position + new Vector3(0, 1.5f, -0.5f), fixture.universe.ToString()+"-"+fixture.dmxAddress.ToString());
         }
-
+        void CountChannels()
+        {
+            
+            numberOfChannels = getChannelFunctions.Count;
+        }
 
     }
     public static class ChannelName
@@ -69,4 +76,5 @@ namespace IA
         public const string SILENT_NORMAL_BOOST = "Silent / Normal / Boost";
         public const string DIMMER = "Dimmer";
     }
+    
 }
