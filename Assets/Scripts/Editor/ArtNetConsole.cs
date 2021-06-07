@@ -110,10 +110,8 @@ namespace IA
             header.x = 0;
             header.y = 0;
             header.width = Screen.width;
-            header.height = 65
-            ;
-
-
+            header.height = 65;
+            
             side.x = 0;
             side.y = header.height;
             side.width = 400;

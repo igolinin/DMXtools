@@ -15,7 +15,7 @@ namespace IA
         protected ArtNetData artNetData;
         [SerializeField]
         public int dmxAddress;
-
+        [SerializeField]
         protected int numberOfChannels;
         [SerializeField]
         protected int universe;
