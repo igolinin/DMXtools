@@ -12,7 +12,7 @@ namespace IA
 
 
         [SerializeField]
-        protected ArtNetData artNetData;
+        public ArtNetData artNetData;
         [SerializeField]
         public int dmxAddress;
         [SerializeField]
@@ -21,6 +21,8 @@ namespace IA
         protected int universe;
         [HideInInspector]
         public bool selected = false;
+        [HideInInspector]
+        public virtual bool isStandAlone {get; }
         
         [HideInInspector]
         public bool added = false;

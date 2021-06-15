@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Sockets;
 using ArtNet.Sockets;
 using ArtNet.Packets;
+using System.Net.NetworkInformation;
+using System.Runtime.Remoting.Messaging;
 
 namespace IA
 {
@@ -19,8 +21,21 @@ namespace IA
         Rect body;
         Rect subHeader;
         DMX dMX;
+        ArtNetDmxPacket dmxToSend = new ArtNetDmxPacket(); 
         ArtNetSocket artnet;
+        bool useBroadcast = true;
+        string remoteIP = "localhost";
+
         IPEndPoint remote;
+        bool newPacket;
+        private ArtPollReplyPacket pollReplayPacket = new ArtPollReplyPacket()
+        {
+            IpAddress = GetLocalIP().GetAddressBytes(),
+            ShortName = "UnityArtNet",
+            LongName = "UnityArtNet-IA",
+            NodeReport = "#0000 [0000] UnityArtNet Art-Net Product. Good Boot.",
+            MacAddress = GetLocalMAC()
+        };
         Dictionary<int, DMXFixture[]> heads;
         List<DMXFixture> selectedHeadObjects = new List<DMXFixture>();
         GroupController groupController;
@@ -28,14 +43,16 @@ namespace IA
         private int dmxUniverse = numberOfUniverses + 1;
         int[] patchSize = new int[numberOfUniverses + 1];
 
+
         bool sendDMX;
-        string remoteIP = "localhost";
+
 
         private int activeUniverse;
         int activeView;
         int numberOfColumns = 3;
         int numberOfHeads;
         bool[] receiveArtNet = new bool[numberOfUniverses + 1];
+        bool[] isServer = new bool[numberOfUniverses + 1];
         string[] views = { "Channels", "Heads" };
         string[] universes = { "All", "Universe 1", "Universe 2", "Universe 3", "Universe 4", "Universe 5", "Universe 6", "Universe 7", "Universe 8" };
 
@@ -58,6 +75,7 @@ namespace IA
             FindDataMap();
             FindAllHeads();
             artNetData.dmxUpdate.AddListener(Repaint);
+            artNetData.dmxUpdate.AddListener(ArtNetSendUpdate);
             OpenArtNet();
 
         }
@@ -67,8 +85,9 @@ namespace IA
                 artnet.Close();
             artnet = new ArtNetSocket();
             remote = new IPEndPoint(FindFromHostName(remoteIP), ArtNetSocket.Port);
+            dmxToSend.DmxData = new byte[512];
             //FindFromHostName("192.168.1.124")
-            artnet.Open(IPAddress.Any, null);
+            artnet.Open(GetLocalIP(), null);
             ArtnetReceiver(CallUpdate);
         }
         void Update()
@@ -111,7 +130,7 @@ namespace IA
             header.y = 0;
             header.width = Screen.width;
             header.height = 65;
-            
+
             side.x = 0;
             side.y = header.height;
             side.width = 400;
@@ -131,7 +150,7 @@ namespace IA
         {
             GUILayout.BeginArea(header);
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Full Blackout", GUILayout.Width(150)) )
+            if (GUILayout.Button("Full Blackout", GUILayout.Width(150)))
             {
                 ResetSelection();
                 ResetGroupController();
@@ -141,27 +160,27 @@ namespace IA
             {
                 heads = FindAllHeads();
             }
-            
+
             if (GUILayout.Button("Reset Selection", GUILayout.Width(150)))
             {
                 ResetSelection();
                 ResetGroupController();
             }
-            if (GUILayout.Button("Select All", GUILayout.Width(150)) )
+            if (GUILayout.Button("Select All", GUILayout.Width(150)))
             {
                 SelectAll();
             }
             EditorGUILayout.EndHorizontal();
             activeUniverse = GUILayout.SelectionGrid(activeUniverse, universes, 9);
             EditorGUILayout.BeginHorizontal();
-            
+
             if (activeUniverse != 0)
             {
                 bool setAsDmx = EditorGUILayout.ToggleLeft("DMX Out Universe", dmxUniverse == activeUniverse, GUILayout.Width(150));
                 if (setAsDmx)
                 {
                     dmxUniverse = activeUniverse;
-                    sendDMX = EditorGUILayout.ToggleLeft("Serial DMX", sendDMX);
+                    sendDMX = EditorGUILayout.ToggleLeft("Serial DMX", sendDMX, GUILayout.Width(150));
                     if (sendDMX && dMX == null)
                     {
                         dMX = new DMX(dmxUniverse - 1);
@@ -172,19 +191,17 @@ namespace IA
                         dMX = null;
                     }
                 }
-                /* remoteIP = GUILayout.TextField(remoteIP);
-                if(GUILayout.Button("change",GUILayout.Width(60)))
-                {
-                    OpenArtNet();
-                } */
-                receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive Art-net", receiveArtNet[activeUniverse - 1]);
+               
+
+                receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive Art-net", receiveArtNet[activeUniverse - 1], GUILayout.Width(150));
+                isServer[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Serve Art-net", isServer[activeUniverse - 1]) ;
                 if (GUILayout.Button("Update Art-net Data", GUILayout.Width(150)))
                 {
                     CallUpdate();
                 }
 
             }
-            
+
             EditorGUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -254,9 +271,13 @@ namespace IA
                         if (i != artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key]])
                         {
                             artNetData.dmxDataMap[device.getUniverse - 1][device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key]] = (byte)i;
-                            if (sendDMX & activeUniverse == dmxUniverse)
+                            if (sendDMX & device.getUniverse - 1 == dmxUniverse)
                             {
                                 dMX[device.getDmxAddress - 1 + device.getChannelFunctions[channelFunction.Key] + 1] = (byte)i;
+                            }
+                            else if(isServer[device.getUniverse - 1])
+                            {
+                                Send((byte)(device.getUniverse-1), artNetData.dmxDataMap[device.getUniverse - 1]);
                             }
                             else
                             {
@@ -270,7 +291,7 @@ namespace IA
 
                 EditorGUILayout.EndVertical();
             }
-            
+
 
             GUILayout.EndArea();
         }
@@ -283,7 +304,7 @@ namespace IA
             activeView = GUILayout.SelectionGrid(activeView, views, 2);
             EditorGUILayout.EndHorizontal();
             if (activeUniverse != 0 && receiveArtNet[activeUniverse - 1])
-                    DrawMap();
+                DrawMap();
             else
             {
                 if (activeView == 1)
@@ -298,7 +319,7 @@ namespace IA
 
                 }
             }
-            
+
 
             GUILayout.EndArea();
         }
@@ -316,9 +337,13 @@ namespace IA
                         artNetData.SetData(universe, packet.DmxData);
                         //CallUpdate();
                     }
+                    callback();
+                }
+                else if (e.Packet.OpCode == ArtNet.Enums.ArtNetOpCodes.Poll)
+                {
+                    artnet.Send(pollReplayPacket);
                 }
 
-                callback();
             };
         }
         private void FindDataMap()
@@ -369,6 +394,10 @@ namespace IA
                         {
                             dMX[f + 1] = (byte)i;
                         }
+                        else if (isServer[activeUniverse - 1])
+                        {
+                            Send((byte)(activeUniverse - 1),  artNetData.dmxDataMap[activeUniverse - 1] );
+                        }
                         else
                         {
                             artNetData.dmxUpdate.Invoke();
@@ -383,10 +412,10 @@ namespace IA
         }
         void DrawHeads()
         {
-           
 
 
-            if (heads != null && patchSize != null )
+
+            if (heads != null && patchSize != null)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Number of Heads :" + patchSize[activeUniverse], GUILayout.MaxWidth(200));
@@ -419,7 +448,7 @@ namespace IA
                             {
                                 AutoPatch(heads[activeUniverse][currentHead]);
                             }
-                            EditorGUILayout.LabelField( heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels +" Channels" , GUILayout.MaxWidth(70));
+                            EditorGUILayout.LabelField(heads[activeUniverse][currentHead].GetComponent<DMXFixture>().getNumberOfChannels + " Channels", GUILayout.MaxWidth(70));
                             heads[activeUniverse][currentHead].selected = EditorGUILayout.Toggle(heads[activeUniverse][currentHead].selected);
                             EditorGUILayout.EndHorizontal();
                             EditorGUILayout.EndVertical();
@@ -486,7 +515,8 @@ namespace IA
         }
         private Dictionary<int, DMXFixture[]> FindAllHeads()
         {
-            DMXFixture[] heads = GameObject.FindObjectsOfType<DMXFixture>();
+            DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
+            DMXFixture[] heads = allHeads.Where(head => !head.isStandAlone).ToArray();
             for (int i = 0; i < heads.Length; i++)
             {
                 heads[i].FindDataMap();
@@ -582,7 +612,60 @@ namespace IA
             }
             return address;
         }
+        static IPAddress GetLocalIP()
+        {
+            var address = IPAddress.None;
 
+            string hostName = Dns.GetHostName();
 
+            try
+            {
+                IPHostEntry localHost = Dns.GetHostEntry(hostName);
+                foreach (var item in localHost.AddressList)
+                {
+                    if (item.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        address = item;
+                        break;
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogErrorFormat("Failed to find IP for :\n host name = {0}\n exception={1}", hostName, e);
+            }
+
+            return address;
+
+        }
+        static byte[] GetLocalMAC()
+        {
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            NetworkInterface net = interfaces.Where(i => i.OperationalStatus == OperationalStatus.Up).FirstOrDefault();
+
+            if (net == null)
+            {
+                Debug.Log("Can not get MAC address.");
+                return null;
+            }
+
+            return net.GetPhysicalAddress().GetAddressBytes();
+        }
+        void Send(byte universe, byte[] dmxData)
+        {
+            dmxToSend.Universe = universe;
+            System.Buffer.BlockCopy(dmxData, 0, dmxToSend.DmxData, 0, dmxData.Length);
+            artnet.Send(dmxToSend);
+        }
+        public void ArtNetSendUpdate()
+        {
+            for(int i = 0; i<numberOfUniverses; i++)
+            {
+                if(isServer[i])
+                {
+                    Send((byte)i, artNetData.dmxDataMap[i]);
+                }
+            }
+        }
     }
 }
