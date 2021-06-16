@@ -23,8 +23,8 @@ namespace IA
         DMX dMX;
         ArtNetDmxPacket dmxToSend = new ArtNetDmxPacket(); 
         ArtNetSocket artnet;
-        bool useBroadcast = true;
         string remoteIP = "localhost";
+        bool localhost;
 
         IPEndPoint remote;
         bool newPacket;
@@ -84,10 +84,10 @@ namespace IA
             if (artnet != null)
                 artnet.Close();
             artnet = new ArtNetSocket();
+            var IP = localhost ? FindFromHostName("127.0.0.1"):GetLocalIP();
             remote = new IPEndPoint(FindFromHostName(remoteIP), ArtNetSocket.Port);
             dmxToSend.DmxData = new byte[512];
-            //FindFromHostName("192.168.1.124")
-            artnet.Open(GetLocalIP(), null);
+            artnet.Open(IP, null);
             ArtnetReceiver(CallUpdate);
         }
         void Update()
@@ -194,7 +194,14 @@ namespace IA
                
 
                 receiveArtNet[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Receive Art-net", receiveArtNet[activeUniverse - 1], GUILayout.Width(150));
+                var tempLocalhost = localhost;
+                localhost = EditorGUILayout.ToggleLeft("Localhost", localhost, GUILayout.Width(150) );
+                if(tempLocalhost != localhost)
+                {
+                    OpenArtNet();
+                }
                 isServer[activeUniverse - 1] = EditorGUILayout.ToggleLeft("Serve Art-net", isServer[activeUniverse - 1]) ;
+                
                 if (GUILayout.Button("Update Art-net Data", GUILayout.Width(150)))
                 {
                     CallUpdate();

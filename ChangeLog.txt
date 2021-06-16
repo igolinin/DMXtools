@@ -7,3 +7,6 @@ v.063a
 1. Grid is shown for art-net controlled universes for both views.
 2. Buttons moved above universes.
 3. Number of channels of the fixture linked with dictionary.
+v.072a
+1.Art-net could be received from remote host and sent(broadcast only)
+2.Improved DMX(real fixtures) control. Including color picker and sliders for stand alone(from the console) mode.

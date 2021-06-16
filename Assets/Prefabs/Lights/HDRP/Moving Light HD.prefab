@@ -77,7 +77,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
   dmxAddress: 1
-  numberOfChannels: 7
+  numberOfChannels: 6
   universe: 2
   selected: 0
   added: 0

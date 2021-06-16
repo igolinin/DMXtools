@@ -246,7 +246,7 @@ GameObject:
   - component: {fileID: 7445200484603407426}
   - component: {fileID: 198985154315289930}
   m_Layer: 0
-  m_Name: Flood HD
+  m_Name: DirectLightRGB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artNetData: {fileID: 11400000, guid: 83c95476c1c5ed142a5f1963727372ed, type: 2}
   dmxAddress: 41
-  numberOfChannels: 7
+  numberOfChannels: 6
   universe: 1
   selected: 0
   added: 0
