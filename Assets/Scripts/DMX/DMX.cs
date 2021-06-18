@@ -46,10 +46,7 @@ namespace IA
 
         public DMX(int universe)
         {
-            Debug.Log("System started");
             serialPorts = GetPortNames();
-            //if (serialPortIdx > 0) 
-            Debug.Log("System started");
             this.universe = universe;
             OpenSerialPort();
             FindDataMap();
@@ -96,7 +93,6 @@ namespace IA
 
         private void ThreadedIO()
         {
-            Debug.Log("Thread Start");
             while (true)
             {
                 if (updateDMX)

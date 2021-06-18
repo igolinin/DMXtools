@@ -10,7 +10,7 @@ namespace IA
     {
         public override int getUniverse { get { return universe; } }
         public override int getDmxAddress { get { return dmxAddress; } }
-        public override int getNumberOfChannels { get { return numberOfChannels; } }
+        //public override int getNumberOfChannels { get {return channelFunctions.Count;} }
         public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions; } }
 
 

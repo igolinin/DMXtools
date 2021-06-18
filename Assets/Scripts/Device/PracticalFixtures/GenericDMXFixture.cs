@@ -1,6 +1,8 @@
 ﻿
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+
 
 
 namespace IA
@@ -11,7 +13,7 @@ namespace IA
     {
         public override int getUniverse { get { return universe = 8; } }
         public override int getDmxAddress { get { return dmxAddress; } }
-        public override int getNumberOfChannels { get { return numberOfChannels; } }
+        //public override int getNumberOfChannels { get { return getChannelFunctions.Count; } }
         public override Dictionary<string, int> getChannelFunctions { get { return channelFunctions; } }
 
         [SerializeField]
@@ -30,16 +32,14 @@ namespace IA
         [SerializeField]
         bool textureToColor;
         [SerializeField]
-        Color32 color;
+        Color32 color = new Color32();
         [SerializeField]
         string[] channels;
         [SerializeField]
         private Dictionary<string, int> channelFunctions;
-        [SerializeField]        
-        bool standAlone;
         public override bool isStandAlone
         {
-            get{return standAlone;}
+            get { return sendDmx; }
         }
         public override void OnEnable()
         {
@@ -47,11 +47,15 @@ namespace IA
             InitFunctions();
 
         }
+        void OnValidate()
+        {
+            InitFunctions();
+        }
         void Update()
         {
-            if (sendDmx && colorProbeTexture != null)
+            if (sendDmx)
             {
-                if (textureToColor)
+                if (textureToColor && colorProbeTexture != null)
                 {
                     ReadColor();
                 }
@@ -80,9 +84,13 @@ namespace IA
         }
         void UpdateDMX()
         {
-            artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.RED]] = correctColor(color.r, correctionRed);
-            artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.GREEN]] = correctColor(color.g, correctionGreen);
-            artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.BLUE]] = correctColor(color.b, correctionBlue);
+            if (getChannelFunctions.ContainsKey(ChannelName.RED) && getChannelFunctions.ContainsKey(ChannelName.GREEN) && getChannelFunctions.ContainsKey(ChannelName.BLUE))
+            {
+                artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.RED]] = correctColor(color.r, correctionRed);
+                artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.GREEN]] = correctColor(color.g, correctionGreen);
+                artNetData.dmxDataMap[getUniverse - 1][getDmxAddress - 1 + getChannelFunctions[ChannelName.BLUE]] = correctColor(color.b, correctionBlue);
+            }
+
         }
         byte correctColor(byte component, int bias)
         {

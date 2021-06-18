@@ -15,6 +15,7 @@ namespace IA
     [ExecuteAlways]
     public class ArtNetConsole : EditorWindow
     {
+        static String version = "V.071a";
         ArtNetData artNetData;
         Rect header;
         Rect side;
@@ -66,7 +67,7 @@ namespace IA
             // Get existing open window or if none, make a new one:
 
             ArtNetConsole window = (ArtNetConsole)EditorWindow.GetWindow(typeof(ArtNetConsole));
-            window.titleContent.text = "ArtNet Console";
+            window.titleContent.text = "ArtNet Console "+ version;
             window.Show();
         }
 
@@ -523,7 +524,7 @@ namespace IA
         private Dictionary<int, DMXFixture[]> FindAllHeads()
         {
             DMXFixture[] allHeads = GameObject.FindObjectsOfType<DMXFixture>();
-            DMXFixture[] heads = allHeads.Where(head => !head.isStandAlone).ToArray();
+            DMXFixture[] heads = allHeads.Where(head => !head.isStandAlone ).ToArray();
             for (int i = 0; i < heads.Length; i++)
             {
                 heads[i].FindDataMap();

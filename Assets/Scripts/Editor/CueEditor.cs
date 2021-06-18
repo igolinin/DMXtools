@@ -129,16 +129,7 @@ namespace IA
                     artNetData.SetData(cueStack.stack[currentCue].cueData);
                 }
             }
-            if ( PlayerPrefs.GetInt("survey") != 1 )
-            {
-                var redTextstyle = new GUIStyle(GUI.skin.button);
-                redTextstyle.normal.textColor = Color.red;
-                if (GUILayout.Button("This button will go away after \nyou click it to answer my questions.", redTextstyle, GUILayout.Height(60)))
-                {
-                    Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSccgEIekGKbzOA9qYSg5l_A_0poEjEH9mMbKafyqQVrVC0vtQ/viewform?usp=sf_link");
-                    PlayerPrefs.SetInt("survey", 1);
-                }
-            }
+            
             GUILayout.EndVertical();
             GUILayout.EndArea();
         }

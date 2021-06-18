@@ -11,11 +11,12 @@ Manual:
 Please help me to improve it and answer my survey questions.
 * https://forms.gle/XU2afDxmDEdb6Jya7
 
-Short demo video
-* https://youtu.be/tjhzYlBY980
+Short demo videos
+* https://youtube.com/playlist?list=PL6xzYzjDDu9vg6JiDnled-qhuY9fVBOm6
 
 Inspired by these pieces of code:
 
 * https://github.com/MikeCodesDotNET/ArtNet.Net
 * https://github.com/sugi-cho/ArtNet.Unity
 * https://github.com/davivid/Unity-DMX
+* https://github.com/Wason-Fok/Unity-DMX-Fixture-Library

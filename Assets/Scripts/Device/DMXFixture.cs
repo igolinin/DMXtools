@@ -15,7 +15,6 @@ namespace IA
         public ArtNetData artNetData;
         [SerializeField]
         public int dmxAddress;
-        [SerializeField]
         protected int numberOfChannels;
         [SerializeField]
         protected int universe;
@@ -24,16 +23,17 @@ namespace IA
         [HideInInspector]
         public virtual bool isStandAlone {get; }
         
+        
         [HideInInspector]
         public bool added = false;
-        public virtual int getNumberOfChannels { get; }
         public virtual int getUniverse { get; }
         public virtual int getDmxAddress { get { return dmxAddress; } set { SetAddress(value); } }
         public virtual Dictionary<string, int> getChannelFunctions { get; }
+        public virtual int getNumberOfChannels { get{return getChannelFunctions.Count;} }
         public virtual void OnEnable()
         {
             FindDataMap();
-            //CountChannels();
+          
             if (PrefabUtility.IsPartOfPrefabInstance(transform.gameObject))
             {
                 var root = PrefabUtility.GetOutermostPrefabInstanceRoot(transform.gameObject);
@@ -56,12 +56,7 @@ namespace IA
         {
             Handles.Label(fixture.transform.position + new Vector3(0, 1.5f, -0.5f), fixture.universe.ToString()+"-"+fixture.dmxAddress.ToString());
         }
-        void CountChannels()
-        {
-            
-            numberOfChannels = getChannelFunctions.Count;
-        }
-
+        
     }
     public static class ChannelName
     {
